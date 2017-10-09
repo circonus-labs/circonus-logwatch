@@ -1,0 +1,30 @@
+---
+id: test
+log_file: testdata/test.log
+metrics:
+    - match: testcounter
+      name: 'counter1'
+    - match: '(?P<Name>testcounterval)\s+(?P<Value>[0-9]+)'
+      name: 'counter2'
+      type: c
+    - match: '(?P<Name>gaugefloat)\s+(?P<Value>[0-9\.]+)'
+      name: '{{.Name}}'
+      type: g
+    - match: '(?P<Name>gaugeint)\s+(?P<Value>[0-9]+)'
+      name: '{{.Name}}'
+      type: g
+    - match: '(?P<Name>hist)\s+(?P<Value>[0-9\.]+)'
+      name: '{{.Name}}'
+      type: h
+    - match: '(?P<Name>timing)\s+(?P<Value>[0-9\.]+)'
+      name: '{{.Name}}'
+      type: ms
+    - match: '(?P<Name>set)\s+(?P<Value>[a-z]+)'
+      name: '{{.Name}}'
+      type: s
+    - match: '(?P<Name>text)\|(?P<Value>.+)'
+      name: '{{.Name}}'
+      type: t
+    - match: 'bad_type'
+      name: 'bad_metric_type'
+      type: q

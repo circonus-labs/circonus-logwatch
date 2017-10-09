@@ -1,0 +1,10 @@
+{
+    "id": "messages",
+    "log_file": "/var/log/messages",
+    "metrics": [
+        {
+            "match": "NETDEV WATCHDOG:.*transmit queue [0-9]+ timed out",
+            "name": "xmitq`timeout"
+        }
+    ]
+}

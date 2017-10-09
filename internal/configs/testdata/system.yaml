@@ -1,0 +1,9 @@
+---
+log_file: /var/log/system.log
+metrics:
+# Sep 30 09:30:12 monkeypox syslogd[51]: ASL Sender Statistics
+- match: syslogd\[[0-9]+\]:\s+ASL Sender Statistics
+  name: asl`send_stats
+- match: (?P<Name>(?:foo|bar))[^:]+(?P<Value>[0-9]+)ms
+  name: '{{.Name}}`ms'
+  type: h

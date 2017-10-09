@@ -1,0 +1,16 @@
+{
+    "id": "ssh",
+    "log_file": "/var/log/auth",
+    "metrics": [
+        {
+            "match": "named regexp for extracting metric",
+            "name": "metric name [template]",
+            "type": "metric type (c|g|h|ms|s|t) - s=set, t=text"
+        },
+        {
+            "match": "named regexp for extracting metric",
+            "name": "metric name [template]",
+            "type": "metric type (c|g|h|ms|s|t) - s=set, t=text"
+        }
+    ]
+}

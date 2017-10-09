@@ -1,0 +1,16 @@
+{
+    "id": "ssh",
+    "log_file": "/var/log/secure",
+    "metrics": [
+        {
+            "match": "session opened for user",
+            "name": "logins",
+            "type": "c"
+        },
+        {
+            "match": "sudo:",
+            "name": "sudo`commands",
+            "type": "c"
+        }
+    ]
+}

@@ -1,0 +1,35 @@
+# MacOS
+.DS_Store
+
+# Vagrant
+.vagrant*/
+
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# vendored packages
+vendor*/
+
+# log config testing
+testlog.d/
+
+# test configs
+circonus-logwatch.toml
+circonus-logwatch.yaml
+circonus-logwatch.json
+
+# goreleaser files
+dist/
+
+# codecov.io repo token and report
+.codecov
+coverage.txt

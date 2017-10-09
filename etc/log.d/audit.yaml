@@ -1,0 +1,9 @@
+---
+log_file: /var/log/audit/audit.log
+metrics:
+    - match: 'USER_LOGIN.*op=login'
+      name: login_attempts
+    - match: 'USER_LOGIN.*op=login.*res=success'
+      name: logins
+    - match: 'USER_LOGOUT.*op=login.*res=success'
+      name: logouts

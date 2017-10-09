@@ -1,0 +1,5 @@
+---
+log_file: /var/log/system.log
+metrics:
+- match: foo
+  type: c

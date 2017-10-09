@@ -1,0 +1,9 @@
+---
+# use base name of config as id
+# id: system
+log_file: /var/log/system.log
+metrics:
+    # Static name
+    - match: '(?P<app>[A-Za-z]+)\[[0-9]+\]:\s+Unlocked user...'
+      name: '{{.app}}`unlocked`user'
+      type: c

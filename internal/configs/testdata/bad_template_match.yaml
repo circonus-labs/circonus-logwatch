@@ -1,0 +1,6 @@
+---
+log_file: /var/log/system.log
+metrics:
+- match: foo
+  name: bar`{{.Name}}
+  type: h

@@ -1,0 +1,9 @@
+---
+log_file: /var/log/yum.log
+metrics:
+    - match: 'Installed:'
+      name: installs
+    - match: 'Updated:'
+      name: updates
+    - match: 'Erased:'
+      name: erases

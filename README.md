@@ -167,3 +167,5 @@ Create one config (JSON, YAML, or TOML) in `--log-conf-dir` for each distinct lo
 1. Build `go build -o circonus-logwatchd`
 1. Ensure target directories exist `mkdir -p /opt/circonus/{sbin,etc,etc/log.d}`
 1. Install `cp circonus-logwatchd /opt/circonus/sbin`
+
+[![codecov](https://codecov.io/gh/maier/circonus-logwatch/branch/master/graph/badge.svg)](https://codecov.io/gh/maier/circonus-logwatch)

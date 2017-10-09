@@ -27,6 +27,9 @@ circonus-logwatch.toml
 circonus-logwatch.yaml
 circonus-logwatch.json
 
+# test log, dynamically created during testing
+internal/watcher/testdata/test.log
+
 # goreleaser files
 dist/
 

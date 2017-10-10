@@ -15,11 +15,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/circonus-labs/circonus-logwatch/internal/appstats"
 	"github.com/circonus-labs/circonus-logwatch/internal/config"
 	"github.com/circonus-labs/circonus-logwatch/internal/configs"
 	"github.com/circonus-labs/circonus-logwatch/internal/metrics"
 	"github.com/hpcloud/tail"
+	"github.com/maier/go-appstats"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"

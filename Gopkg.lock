@@ -10,8 +10,8 @@
 [[projects]]
   name = "github.com/circonus-labs/circonus-gometrics"
   packages = [".","api","api/config","checkmgr"]
-  revision = "6419ea0ac64c8403f9eaabc743dd341adaf68315"
-  version = "v1.2.0"
+  revision = "ee5536e3086c87248833c21651e1fc59fd9395e6"
+  version = "v2.0.0"
 
 [[projects]]
   branch = "master"
@@ -107,7 +107,7 @@
   branch = "master"
   name = "github.com/spf13/cobra"
   packages = ["."]
-  revision = "4d6af280c76ff7d266434f2dba207c4b75dfc076"
+  revision = "40f18800b20df8f74ad2b02aa4e56748a3d17239"
 
 [[projects]]
   branch = "master"

@@ -45,7 +45,7 @@ func New() (*Statsd, error) {
 		client = &Statsd{
 			id:     id,
 			port:   port,
-			prefix: viper.GetString(config.KeyDestCfgStatsdPrefix) + id,
+			prefix: viper.GetString(config.KeyDestCfgStatsdPrefix) + id + "`",
 			logger: log.With().Str("pkg", "dest-statsd").Logger(),
 		}
 	})

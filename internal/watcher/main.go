@@ -15,11 +15,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/circonus-labs/circonus-logwatch/internal/appstats"
 	"github.com/circonus-labs/circonus-logwatch/internal/config"
 	"github.com/circonus-labs/circonus-logwatch/internal/configs"
 	"github.com/circonus-labs/circonus-logwatch/internal/metrics"
 	"github.com/hpcloud/tail"
+	"github.com/maier/go-appstats"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -74,7 +74,7 @@ func (w *Watcher) process() error {
 	cfg := tail.Config{
 		Follow:    true,
 		ReOpen:    true,
-		MustExist: true,
+		MustExist: false,
 		Location: &tail.SeekInfo{
 			Offset: 0,
 			Whence: io.SeekEnd,
@@ -86,41 +86,51 @@ func (w *Watcher) process() error {
 		cfg.Logger = stdlog.New(w.logger.With().Str("pkg", "tail").Logger(), "", 0)
 	}
 
+START_TAIL:
+	w.logger.Debug().Msg("starting tail")
 	tailer, err := tail.TailFile(w.cfg.LogFile, cfg)
 	if err != nil {
+		w.logger.Error().Err(err).Msg("starting tailer")
+		w.t.Kill(err)
 		return err
 	}
 
+	w.logger.Debug().Msg("tail started, waiting for lines")
 	for {
 		select {
 		case <-w.t.Dying():
+			w.logger.Debug().Msg("w.t dying, stopping tail")
 			tailer.Cleanup()
 			return nil
 		case <-tailer.Dying():
+			w.logger.Debug().Err(tailer.Err()).Msg("tailer dying, restarting tailer")
+			// there is a not well handled scenario in tail where the inotify watcher
+			// is closed while the log reopener is waiting for log file creation events
 			tailer.Cleanup()
-			return nil
+			goto START_TAIL
 		case line := <-tailer.Lines:
 			if line == nil {
 				_, err := tailer.Tell()
 				if err != nil {
+					w.logger.Error().Err(err).Msg("nil line w/error")
 					if !strings.Contains(err.Error(), "file already closed") {
+						w.logger.Debug().Msg("!file already closed error, stopping tail")
 						tailer.Cleanup()
+						w.t.Kill(err)
 						return err
 					}
 				}
-				w.logger.Warn().Msg("nil line, stopping tail")
-				tailer.Cleanup()
-				return nil
+				w.logger.Warn().Msg("nil line, ignoring")
+				continue
 			}
+			appstats.IncrementInt(w.statTotalLines)
 			if line.Err != nil {
 				w.logger.Error().
 					Err(line.Err).
 					Str("log_line", line.Text).
-					Msg("tail")
-				tailer.Cleanup()
-				return err
+					Msg("tail line error -- ignoring line")
+				continue
 			}
-			appstats.IncrementInt(w.statTotalLines)
 			for id, def := range w.cfg.Metrics {
 				if w.trace {
 					w.logger.Log().

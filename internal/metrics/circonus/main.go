@@ -46,10 +46,28 @@ func New() (*Circonus, error) {
 			Debug: viper.GetBool(config.KeyDebugCGM),
 			Log:   stdlog.New(log.With().Str("pkg", "dest-check").Logger(), "", 0),
 		}
-		cmc.CheckManager.Check.ID = viper.GetString(config.KeyDestCfgCID)
-		cmc.CheckManager.Check.SubmissionURL = viper.GetString(config.KeyDestCfgURL)
-		cmc.CheckManager.Check.SearchTag = viper.GetString(config.KeyDestCfgSearchTag)
-		cmc.CheckManager.Check.TargetHost = viper.GetString(config.KeyDestCfgTarget)
+		cmc.CheckManager.API.TokenKey = viper.GetString(config.KeyAPITokenKey)
+		if viper.GetString(config.KeyAPITokenApp) != "" {
+			cmc.CheckManager.API.TokenApp = viper.GetString(config.KeyAPITokenApp)
+		}
+		if viper.GetString(config.KeyAPIURL) != "" {
+			cmc.CheckManager.API.URL = viper.GetString(config.KeyAPIURL)
+		}
+		if viper.GetString(config.KeyAPICAFile) != "" {
+			// TODO: load the cert and add to config
+		}
+		if viper.GetString(config.KeyDestCfgCID) != "" {
+			cmc.CheckManager.Check.ID = viper.GetString(config.KeyDestCfgCID)
+		}
+		if viper.GetString(config.KeyDestCfgURL) != "" {
+			cmc.CheckManager.Check.SubmissionURL = viper.GetString(config.KeyDestCfgURL)
+		}
+		if viper.GetString(config.KeyDestCfgSearchTag) != "" {
+			cmc.CheckManager.Check.SearchTag = viper.GetString(config.KeyDestCfgSearchTag)
+		}
+		if viper.GetString(config.KeyDestCfgTarget) != "" {
+			cmc.CheckManager.Check.TargetHost = viper.GetString(config.KeyDestCfgTarget)
+		}
 		c, err := cgm.New(cmc)
 		if err != nil {
 			return nil, errors.Wrap(err, "creating client for destination 'check'")

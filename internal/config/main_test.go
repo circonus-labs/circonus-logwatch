@@ -167,6 +167,7 @@ func TestDestConf(t *testing.T) {
 	t.Log("agent, not listening")
 	{
 		viper.Set(KeyDestType, "agent")
+		viper.Set(KeyDestCfgPort, "12345")
 		if err := destConf(); err == nil {
 			t.Fatal("expected error")
 		}

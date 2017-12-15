@@ -146,13 +146,13 @@ Create one config (JSON, YAML, or TOML) in `--log-conf-dir` for each distinct lo
 1. `metrics` a list of:
     1. `match` regular expression to identify lines and optionally extract named subexpressions for value and metric name
     1. `name` a static string to use as the metric name or a template for naming the metric if named subexpressions were used in match regex
-    1. `type` what type of metric
-        * `c` counter
-        * `g` gauge
-        * `ms` timing (treated as a histogram)
-        * `h` histogram
-        * `s` set (ala statsd set metrics)
-        * `t` text
+    1. `type` what type of metric (all numbers are 64bit)
+        * `c` counter int
+        * `g` gauge int or float
+        * `ms` timing (treated as histogram) value can be a float (3.12) or duration (25ms, 3.2s, 1m10s, etc.) durations are converted to milliseconds, floats are assumed to already represent milliseconds
+        * `h` histogram float
+        * `s` set (ala statsd set metrics) unique string to count
+        * `t` text string
 
 > NOTE:
 > * any metric which does not have a `type` will be treated as a counter.
@@ -167,3 +167,5 @@ Create one config (JSON, YAML, or TOML) in `--log-conf-dir` for each distinct lo
 1. Build `go build -o circonus-logwatchd`
 1. Ensure target directories exist `mkdir -p /opt/circonus/{sbin,etc,etc/log.d}`
 1. Install `cp circonus-logwatchd /opt/circonus/sbin`
+
+[![codecov](https://codecov.io/gh/maier/circonus-logwatch/branch/master/graph/badge.svg)](https://codecov.io/gh/maier/circonus-logwatch)

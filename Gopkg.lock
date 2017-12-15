@@ -10,8 +10,8 @@
 [[projects]]
   name = "github.com/circonus-labs/circonus-gometrics"
   packages = [".","api","api/config","checkmgr"]
-  revision = "ee5536e3086c87248833c21651e1fc59fd9395e6"
-  version = "v2.0.0"
+  revision = "b25d14eeef390159289ad3e8521eff3162c59685"
+  version = "v2.1.0"
 
 [[projects]]
   branch = "master"
@@ -29,7 +29,7 @@
   branch = "master"
   name = "github.com/hashicorp/go-cleanhttp"
   packages = ["."]
-  revision = "3573b8b52aa7b37b9358d966a898feb387f62437"
+  revision = "06c9ea3a335b7443026f8124b22619524420291b"
 
 [[projects]]
   branch = "master"
@@ -41,7 +41,7 @@
   branch = "master"
   name = "github.com/hashicorp/hcl"
   packages = [".","hcl/ast","hcl/parser","hcl/scanner","hcl/strconv","hcl/token","json/parser","json/scanner","json/token"]
-  revision = "42e33e2d55a0ff1d6263f738896ea8c13571a8d0"
+  revision = "23c074d0eceb2b8a5bfdbb271ab780cde70f05a8"
 
 [[projects]]
   name = "github.com/hpcloud/tail"
@@ -58,8 +58,8 @@
 [[projects]]
   name = "github.com/magiconair/properties"
   packages = ["."]
-  revision = "be5ece7dd465ab0765a9682137865547526d1dfb"
-  version = "v1.7.3"
+  revision = "d419a98cdbed11a922bf76f257b7c4be79b50e73"
+  version = "v1.7.4"
 
 [[projects]]
   name = "github.com/maier/go-appstats"
@@ -71,7 +71,7 @@
   branch = "master"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
-  revision = "d0303fe809921458f417bcf828397a65db30a7e4"
+  revision = "06020f85339e21b2478f756a78e295255ffa4d6a"
 
 [[projects]]
   name = "github.com/pelletier/go-toml"
@@ -92,10 +92,10 @@
   version = "v1.3.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/spf13/afero"
   packages = [".","mem"]
-  revision = "e67d870304c4bca21331b02f414f970df13aa694"
+  revision = "8d919cbe7e2627e417f3e45c3c0e489a5b7e2536"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/spf13/cast"
@@ -107,7 +107,7 @@
   branch = "master"
   name = "github.com/spf13/cobra"
   packages = ["."]
-  revision = "40f18800b20df8f74ad2b02aa4e56748a3d17239"
+  revision = "ccaecb155a2177302cb56cae929251a256d0f646"
 
 [[projects]]
   branch = "master"
@@ -129,21 +129,27 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/tv42/httpunix"
+  packages = ["."]
+  revision = "b75d8614f926c077e48d85f1f8f7885b758c6225"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/net"
   packages = ["context"]
-  revision = "a04bdaca5b32abe1c069418fb7088ae607de5bd0"
+  revision = "d866cfc389cec985d6fda2859936a575a55a3ab6"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "ebfc5b4631820b793c9010c87fd8fef0f39eb082"
+  revision = "d5840adf789d732bc8b00f37b26ca956a7cc8e79"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
   packages = ["internal/gen","internal/triegen","internal/ucd","transform","unicode/cldr","unicode/norm"]
-  revision = "825fc78a2fd6fa0a5447e300189e3219e05e1f25"
+  revision = "73f72487b7d8a81970fbf571cd9b660d3d5e604c"
 
 [[projects]]
   name = "gopkg.in/fsnotify.v1"
@@ -167,7 +173,7 @@
   branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "eb3733d160e74a9c7e442f435eb3bea458e1d19f"
+  revision = "287cf08546ab5e7e37d55a84f7ed3fd1db036de5"
 
 [solve-meta]
   analyzer-name = "dep"

@@ -1,0 +1,21 @@
+---
+#
+# example apache access log latency histogram metrics
+#
+log_file: /var/log/httpd/access_log
+metrics:
+  # since latency is not included in common log format, it was added to 'combined' format:
+  # e.g. `LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" tm:%D" combined`
+
+  # aggregate latency histogram
+  - match: 'tm:(?P<value>[0-9.]+)'
+    name: latency_ns
+    type: h
+  # latency histogram by request path
+  - match: ' (?P<path>/[^ ]*) HTTP.+tm:(?P<value>[0-9.]+)'
+    name: '{{.path}}`latency_ns'
+    type: h
+  # latency histogram by request path and specific request methods
+  - match: '(?P<method>(GET|POST|PUT)) (?P<path>/[^ ]*) HTTP.+tm:(?P<value>[0-9.]+)'
+    name: '{{.path}}`{{.method}}`latency_ns'
+    type: h

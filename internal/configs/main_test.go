@@ -37,6 +37,17 @@ func TestLoadConfigs(t *testing.T) {
 		}
 	}
 
+	t.Log("no valid configs")
+	{
+		viper.Set(config.KeyLogConfDir, "testdata/no_valid_cfgs")
+		_, err := Load()
+		viper.Reset()
+
+		if err == nil {
+			t.Fatal("expected error")
+		}
+	}
+
 	t.Log("valid")
 	{
 		viper.Set(config.KeyLogConfDir, "testdata/")

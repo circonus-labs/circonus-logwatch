@@ -2,14 +2,14 @@
 
 A small utility for extracting metrics from log files and forwarding to Circonus.
 
->NOTE: This is a "proof of concept" project, the design and implementation is still subject to change. As such, the code is *changing frequently* - please ensure the [latest release](../../releases/latest) is being used.
+>NOTE: This is a "proof of concept" project, the design and implementation is still subject to change. As such, the code is volatile - please ensure the [latest release](../../releases/latest) is being used.
 
 ## Install
 
 1. `mkdir -p /opt/circonus/{sbin,etc,etc/log.d}`
 1. Download [latest release](../../releases/latest) from repository (or [build manually](#manual-build))
-1. If downloaded, extract archive into `/opt/circonus`
-1. Create log configs in `/opt/circonus/etc/log.d`
+1. Extract archive into `/opt/circonus`
+1. Create config in `/opt/circonus/etc` and log configs in `/opt/circonus/etc/log.d`
 
 ## Options
 ```
@@ -167,5 +167,3 @@ Create one config (JSON, YAML, or TOML) in `--log-conf-dir` for each distinct lo
 1. Build `go build -o circonus-logwatchd`
 1. Ensure target directories exist `mkdir -p /opt/circonus/{sbin,etc,etc/log.d}`
 1. Install `cp circonus-logwatchd /opt/circonus/sbin`
-
-[![codecov](https://codecov.io/gh/maier/circonus-logwatch/branch/master/graph/badge.svg)](https://codecov.io/gh/maier/circonus-logwatch)

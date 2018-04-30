@@ -95,6 +95,10 @@ func Load() ([]*Config, error) {
 		}
 	}
 
+	if len(cfgs) == 0 {
+		return nil, errors.New("no valid configurations found")
+	}
+
 	return cfgs, nil
 }
 

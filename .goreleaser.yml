@@ -37,14 +37,14 @@ archive:
         darwin: macOS
 
     format_overrides:
-        -
-            goos: windows
-            format: zip
+        - goos: windows
+          format: zip
 
     files:
         - LICENSE
         - README.md
         - CHANGELOG.md
+        - etc/log.d/README.md
 
 release:
     github:

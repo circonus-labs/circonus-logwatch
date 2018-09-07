@@ -15,7 +15,7 @@ builds:
             - linux
             # - darwin
             # - windows
-            # - freebsd
+            - freebsd
             # - solaris
 
         goarch:
@@ -34,7 +34,6 @@ archive:
 
     replacements:
         amd64: 64-bit
-        darwin: macOS
 
     format_overrides:
         - goos: windows

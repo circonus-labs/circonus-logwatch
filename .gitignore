@@ -3,6 +3,7 @@
 
 # Vagrant
 .vagrant*/
+Vagrantfile
 
 # Binaries for programs and plugins
 *.exe
@@ -33,7 +34,3 @@ internal/watcher/testdata/test.log
 # goreleaser files
 dist/
 
-# codecov.io repo token and report
-.codecov
-coverage.txt
-coverage.xml

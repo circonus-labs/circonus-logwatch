@@ -1,3 +1,7 @@
+# v0.3.1
+
+* add: freebsd to release
+
 # v0.3.0
 
 * add: example of apache access log  latency histograms

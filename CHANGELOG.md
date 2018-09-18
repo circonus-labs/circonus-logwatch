@@ -1,3 +1,8 @@
+# v0.4.0
+
+* upd: release file names use x86_64, facilitate automated builds and testing
+* upd: goreleaser, turn off draft
+
 # v0.3.1
 
 * add: freebsd to release

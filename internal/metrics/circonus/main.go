@@ -9,12 +9,21 @@ import (
 	"fmt"
 	stdlog "log"
 
-	cgm "github.com/circonus-labs/circonus-gometrics"
+	cgm "github.com/circonus-labs/circonus-gometrics/v3"
 	"github.com/circonus-labs/circonus-logwatch/internal/config"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
+	tomb "gopkg.in/tomb.v2"
 )
+
+// Circonus defines an instance of the circonus metrics destination
+type Circonus struct {
+	logger zerolog.Logger
+	client *cgm.CirconusMetrics
+	t      tomb.Tomb
+}
 
 // New returns a new instance of the circonus metrics destination
 func New() (*Circonus, error) {

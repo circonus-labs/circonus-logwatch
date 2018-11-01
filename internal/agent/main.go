@@ -127,19 +127,20 @@ func (a *Agent) Start() error {
 	log.Debug().
 		Int("pid", os.Getpid()).
 		Str("name", release.NAME).
-		Str("ver", release.VERSION).Msg("Starting wait")
+		Str("ver", release.VERSION).Msg("Started")
 
 	return a.group.Wait()
 }
 
 // Stop cleans up and shuts down the Agent
 func (a *Agent) Stop() {
+	log.Debug().
+		Int("pid", os.Getpid()).
+		Str("name", release.NAME).
+		Str("ver", release.VERSION).Msg("Stopping")
+
 	a.stopSignalHandler()
 	a.groupCancel()
-
-	// for _, w := range a.watchers {
-	// 	w.Stop()
-	// }
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -147,11 +148,6 @@ func (a *Agent) Stop() {
 	if err != nil {
 		log.Warn().Err(err).Msg("closing HTTP server")
 	}
-
-	log.Debug().
-		Int("pid", os.Getpid()).
-		Str("name", release.NAME).
-		Str("ver", release.VERSION).Msg("Stopped")
 }
 
 func (a *Agent) serveMetrics() error {

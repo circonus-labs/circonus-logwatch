@@ -6,14 +6,17 @@
 package agent
 
 import (
+	"context"
 	"expvar"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/circonus-labs/circonus-logwatch/internal/config"
 	"github.com/circonus-labs/circonus-logwatch/internal/configs"
+	"github.com/circonus-labs/circonus-logwatch/internal/metrics"
 	"github.com/circonus-labs/circonus-logwatch/internal/metrics/circonus"
 	"github.com/circonus-labs/circonus-logwatch/internal/metrics/logonly"
 	"github.com/circonus-labs/circonus-logwatch/internal/metrics/statsd"
@@ -22,7 +25,19 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
+	"golang.org/x/sync/errgroup"
 )
+
+// Agent holds the main circonus-logwatch process
+type Agent struct {
+	group       *errgroup.Group
+	groupCtx    context.Context
+	groupCancel context.CancelFunc
+	watchers    []*watcher.Watcher
+	signalCh    chan os.Signal
+	destClient  metrics.Destination
+	svrHTTP     *http.Server
+}
 
 func init() {
 	http.Handle("/stats", expvar.Handler())
@@ -30,8 +45,14 @@ func init() {
 
 // New returns a new agent instance
 func New() (*Agent, error) {
+	ctx, cancel := context.WithCancel(context.Background())
+	g, gctx := errgroup.WithContext(ctx)
+
 	a := Agent{
-		signalCh: make(chan os.Signal),
+		group:       g,
+		groupCtx:    gctx,
+		groupCancel: cancel,
+		signalCh:    make(chan os.Signal, 10),
 	}
 
 	//
@@ -80,7 +101,7 @@ func New() (*Agent, error) {
 
 	a.watchers = make([]*watcher.Watcher, len(cfgs))
 	for idx, cfg := range cfgs {
-		w, err := watcher.New(a.destClient, cfg)
+		w, err := watcher.New(a.groupCtx, a.destClient, cfg)
 		if err != nil {
 			log.Error().Err(err).Str("id", cfg.ID).Msg("adding watcher, log will NOT be processed")
 		}
@@ -97,39 +118,35 @@ func New() (*Agent, error) {
 
 // Start the agent
 func (a *Agent) Start() error {
-	a.t.Go(a.handleSignals)
-
+	a.group.Go(a.handleSignals)
 	for _, w := range a.watchers {
-		a.t.Go(w.Start)
+		a.group.Go(w.Start)
 	}
-
-	a.t.Go(a.serveMetrics)
+	a.group.Go(a.serveMetrics)
 
 	log.Debug().
 		Int("pid", os.Getpid()).
 		Str("name", release.NAME).
-		Str("ver", release.VERSION).Msg("Starting wait")
+		Str("ver", release.VERSION).Msg("Started")
 
-	return a.t.Wait()
+	return a.group.Wait()
 }
 
 // Stop cleans up and shuts down the Agent
 func (a *Agent) Stop() {
-	a.stopSignalHandler()
-
-	for _, w := range a.watchers {
-		w.Stop()
-	}
-
-	a.svrHTTP.Close()
-
 	log.Debug().
 		Int("pid", os.Getpid()).
 		Str("name", release.NAME).
-		Str("ver", release.VERSION).Msg("Stopped")
+		Str("ver", release.VERSION).Msg("Stopping")
 
-	if a.t.Alive() {
-		a.t.Kill(nil)
+	a.stopSignalHandler()
+	a.groupCancel()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	err := a.svrHTTP.Shutdown(ctx)
+	if err != nil {
+		log.Warn().Err(err).Msg("closing HTTP server")
 	}
 }
 

@@ -43,6 +43,8 @@ archive:
         - LICENSE
         - README.md
         - CHANGELOG.md
+        - service/*
+        - etc/example-circonus-logwatch.yaml
         - etc/log.d/README.md
 
 release:

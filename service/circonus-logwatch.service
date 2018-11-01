@@ -1,0 +1,12 @@
+[Unit]
+Description=Circonus Logwatch Daemon
+Documentation=http://github.com/circonus-labs/circonus-logwatch
+After=network.target
+
+[Service]
+ExecStart=/opt/circonus/logwatch/circonus-logwatch
+Restart=always
+User=nobody
+
+[Install]
+WantedBy=multi-user.target

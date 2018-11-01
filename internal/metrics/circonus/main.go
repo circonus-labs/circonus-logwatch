@@ -6,15 +6,25 @@
 package circonus
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 	stdlog "log"
 
-	cgm "github.com/circonus-labs/circonus-gometrics"
+	cgm "github.com/circonus-labs/circonus-gometrics/v3"
 	"github.com/circonus-labs/circonus-logwatch/internal/config"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
+
+// Circonus defines an instance of the circonus metrics destination
+type Circonus struct {
+	logger zerolog.Logger
+	client *cgm.CirconusMetrics
+}
 
 // New returns a new instance of the circonus metrics destination
 func New() (*Circonus, error) {
@@ -53,8 +63,16 @@ func New() (*Circonus, error) {
 		if viper.GetString(config.KeyAPIURL) != "" {
 			cmc.CheckManager.API.URL = viper.GetString(config.KeyAPIURL)
 		}
-		if viper.GetString(config.KeyAPICAFile) != "" {
-			// TODO: load the cert and add to config
+		if file := viper.GetString(config.KeyAPICAFile); file != "" {
+			cert, err := ioutil.ReadFile(file)
+			if err != nil {
+				return nil, errors.Wrapf(err, "reading specified API CA file (%s)", file)
+			}
+			cp := x509.NewCertPool()
+			if !cp.AppendCertsFromPEM(cert) {
+				return nil, errors.New("unable to add API CA Certificate to x509 cert pool")
+			}
+			cmc.CheckManager.API.TLSConfig = &tls.Config{RootCAs: cp}
 		}
 		if viper.GetString(config.KeyDestCfgCID) != "" {
 			cmc.CheckManager.Check.ID = viper.GetString(config.KeyDestCfgCID)

@@ -34,7 +34,7 @@ func (a *Agent) handleSignals() error {
 
 	for {
 		select {
-		case <-a.t.Dying():
+		case <-a.groupCtx.Done():
 			return nil
 		case sig := <-a.signalCh:
 			log.Info().Str("signal", sig.String()).Msg("Received signal")

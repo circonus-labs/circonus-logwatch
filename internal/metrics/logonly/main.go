@@ -6,7 +6,20 @@
 package logonly
 
 import (
+	"sync"
+
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+)
+
+// LogOnly defines logging metrics only destination
+type LogOnly struct {
+	logger zerolog.Logger
+}
+
+var (
+	client *LogOnly
+	once   sync.Once
 )
 
 // New creates a new log only destination

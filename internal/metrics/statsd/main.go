@@ -12,12 +12,28 @@ import (
 	"math/big"
 	"math/rand"
 	"net"
+	"sync"
 	"time"
 
 	"github.com/circonus-labs/circonus-logwatch/internal/config"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
+)
+
+// Statsd defines the relevant properties of a StatsD connection.
+type Statsd struct {
+	id     string
+	port   string
+	prefix string
+	conn   net.Conn
+	logger zerolog.Logger
+}
+
+var (
+	client *Statsd
+	once   sync.Once
 )
 
 func init() {

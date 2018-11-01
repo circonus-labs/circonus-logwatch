@@ -265,7 +265,7 @@ func (w *Watcher) save() error {
 		case <-w.groupCtx.Done():
 			return nil
 		case m := <-w.metrics:
-			w.logger.Info().
+			w.logger.Debug().
 				Str("metric", fmt.Sprintf("%#v", m)).
 				Msg("sending")
 
@@ -305,7 +305,7 @@ func (w *Watcher) save() error {
 			case "t":
 				w.dest.SetTextValue(m.Name, m.Value)
 			default:
-				w.logger.Info().
+				w.logger.Warn().
 					Str("type", m.Type).
 					Str("name", m.Name).
 					Interface("val", m.Value).

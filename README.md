@@ -162,8 +162,7 @@ Create one config (JSON, YAML, or TOML) in `--log-conf-dir` for each distinct lo
 
 ## Manual build
 
-1. Clone repo `git clone https://github.com/circonus-labs/circonus-logwatch && cd circonus-logwatch`
-1. Dependencies, run `dep ensure` (requires [dep](https://github.com/golang/dep) utility)
+1. Clone repo (outside if `GOPATH`)`git clone https://github.com/circonus-labs/circonus-logwatch && cd circonus-logwatch`
 1. Build `go build -o circonus-logwatchd`
-1. Ensure target directories exist `mkdir -p /opt/circonus/{sbin,etc,etc/log.d}`
-1. Install `cp circonus-logwatchd /opt/circonus/sbin`
+1. Ensure target directories exist `mkdir -p /opt/circonus/logwatch/{sbin,etc,etc/log.d}`
+1. Install `cp circonus-logwatchd /opt/circonus/logwatch/sbin`

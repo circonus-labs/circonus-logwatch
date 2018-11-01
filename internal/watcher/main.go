@@ -21,8 +21,40 @@ import (
 	"github.com/hpcloud/tail"
 	"github.com/maier/go-appstats"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
+	tomb "gopkg.in/tomb.v2"
+)
+
+type metric struct {
+	Name  string
+	Type  string
+	Value string
+}
+
+type metricLine struct {
+	line     string
+	matches  *map[string]string
+	metricID int
+}
+
+// Watcher defines a new log watcher
+type Watcher struct {
+	cfg              *configs.Config
+	trace            bool
+	logger           zerolog.Logger
+	metricLines      chan metricLine
+	metrics          chan metric
+	t                tomb.Tomb
+	dest             metrics.Destination
+	statTotalLines   string
+	statMatchedLines string
+}
+
+const (
+	metricLineQueueSize = 1000
+	metricQueueSize     = 1000
 )
 
 // New creates a new watcher instance

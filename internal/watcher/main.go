@@ -139,7 +139,7 @@ START_TAIL:
 	for {
 		select {
 		case <-w.groupCtx.Done():
-			w.logger.Debug().Msg("ctx done, stopping tail")
+			w.logger.Debug().Msg("ctx done, stopping process tail")
 			tailer.Cleanup()
 			return nil
 		case <-tailer.Dying():
@@ -211,6 +211,7 @@ func (w *Watcher) parse() error {
 	for {
 		select {
 		case <-w.groupCtx.Done():
+			w.logger.Debug().Msg("ctx done, stopping parse")
 			return nil
 		case l := <-w.metricLines:
 			appstats.IncrementInt(w.statMatchedLines)
@@ -263,6 +264,7 @@ func (w *Watcher) save() error {
 	for {
 		select {
 		case <-w.groupCtx.Done():
+			w.logger.Debug().Msg("ctx done, stopping save")
 			return nil
 		case m := <-w.metrics:
 			w.logger.Debug().

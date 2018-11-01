@@ -1,27 +1,62 @@
 ---
-
+# location of log metric configurations
 log_conf_dir: /opt/circonus/logwatch/etc/log.d
+# stats for the process (e.g. curl localhost:33284/stats)
 app_stat_port: "33284"
+# turns on debugging messages (e.g. log.level=debug)
 debug: false
+# debug circonus api interactions
 debug_cgm: false
+# debug log tailing
 debug_tail: false
+# debug metric processing
 debug_metric: false
-api:
+api: # applicable when using a 'check' destination
   key: ""
   app: circonus-logwatch
   url: https://api.circonus.com/v2/
   ca_file: ""
 destination:
+  # log|agent|check|statsd
   type: log
   config:
-    id: circonus-logwatch
-    port: ""
-    statsd_prefix: host.
-    cid: ""
-    url: ""
-    target: ""
-    search_tag: ""
-    instance_id: ""
+    # Circonus Check destination
+    #
+    # check or check bundle id /check/# or /check_bundle/#
+    #cid: ""
+    #
+    # searching for an existing check and creating a new check
+    #instance_id: ""
+    #
+    # searching for an existing check with a specific tag
+    #search_tag: ""
+    #
+    # searching for an existing check and creating a new check
+    #target: ""
+    #
+    # submission url of an existing check
+    #url: ""
+
+    # StatsD destination
+    #
+    # grouping/prefix for metrics
+    #id: circonus-logwatch
+    #
+    # port a statsd server is listening to (default: 8125)
+    #port: "8125"
+    #
+    # prefix for metrics
+    #statsd_prefix: host.
+
+    # Agent destination
+    #
+    # grouping/prefix for metrics
+    #id: circonus-logwatch
+    #
+    # port agent is listening to (default: 2609)
+    #port: "2609"
 log:
   level: info
+  # helpful when running process at command line
+  # makes log messages easier to read
   pretty: false

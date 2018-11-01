@@ -7,6 +7,7 @@ package watcher
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -24,7 +25,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
-	tomb "gopkg.in/tomb.v2"
+	"golang.org/x/sync/errgroup"
 )
 
 type metric struct {
@@ -41,12 +42,13 @@ type metricLine struct {
 
 // Watcher defines a new log watcher
 type Watcher struct {
+	group            *errgroup.Group
+	groupCtx         context.Context
 	cfg              *configs.Config
 	trace            bool
 	logger           zerolog.Logger
 	metricLines      chan metricLine
 	metrics          chan metric
-	t                tomb.Tomb
 	dest             metrics.Destination
 	statTotalLines   string
 	statMatchedLines string
@@ -58,7 +60,7 @@ const (
 )
 
 // New creates a new watcher instance
-func New(metricDest metrics.Destination, logConfig *configs.Config) (*Watcher, error) {
+func New(ctx context.Context, metricDest metrics.Destination, logConfig *configs.Config) (*Watcher, error) {
 	if metricDest == nil {
 		return nil, errors.New("invalid metric destination (nil)")
 	}
@@ -66,7 +68,10 @@ func New(metricDest metrics.Destination, logConfig *configs.Config) (*Watcher, e
 		return nil, errors.New("invalid log config (nil)")
 	}
 
+	g, gctx := errgroup.WithContext(ctx)
 	w := Watcher{
+		group:            g,
+		groupCtx:         gctx,
 		logger:           log.With().Str("pkg", "watcher").Str("log_id", logConfig.ID).Logger(),
 		cfg:              logConfig,
 		dest:             metricDest,
@@ -85,20 +90,24 @@ func New(metricDest metrics.Destination, logConfig *configs.Config) (*Watcher, e
 
 // Start the watcher
 func (w *Watcher) Start() error {
-	w.t.Go(w.save)
-	w.t.Go(w.parse)
-	w.t.Go(w.process)
-	return w.t.Wait()
+	w.group.Go(w.save)
+	w.group.Go(w.parse)
+	w.group.Go(w.process)
+
+	go func() {
+		select {
+		case <-w.groupCtx.Done():
+			w.logger.Debug().Msg("stopping watcher process")
+			w.Stop()
+		}
+	}()
+
+	return w.group.Wait()
 }
 
 // Stop the watcher
 func (w *Watcher) Stop() error {
-	w.logger.Info().Msg("stopping")
-	if w.t.Alive() {
-		w.t.Kill(nil)
-	}
-
-	return nil
+	return w.groupCtx.Err()
 }
 
 // process opens log and checks log lines for matches
@@ -123,21 +132,21 @@ START_TAIL:
 	tailer, err := tail.TailFile(w.cfg.LogFile, cfg)
 	if err != nil {
 		w.logger.Error().Err(err).Msg("starting tailer")
-		w.t.Kill(err)
 		return err
 	}
 
 	w.logger.Debug().Msg("tail started, waiting for lines")
 	for {
 		select {
-		case <-w.t.Dying():
-			w.logger.Debug().Msg("w.t dying, stopping tail")
+		case <-w.groupCtx.Done():
+			w.logger.Debug().Msg("ctx done, stopping tail")
 			tailer.Cleanup()
 			return nil
 		case <-tailer.Dying():
 			w.logger.Debug().Err(tailer.Err()).Msg("tailer dying, restarting tailer")
-			// there is a not well handled scenario in tail where the inotify watcher
-			// is closed while the log reopener is waiting for log file creation events
+			// there is a not well handled scenario in tail where
+			// the inotify watcher is closed while the log reopener
+			// is waiting for log file creation events
 			tailer.Cleanup()
 			goto START_TAIL
 		case line := <-tailer.Lines:
@@ -148,7 +157,7 @@ START_TAIL:
 					if !strings.Contains(err.Error(), "file already closed") {
 						w.logger.Debug().Msg("!file already closed error, stopping tail")
 						tailer.Cleanup()
-						w.t.Kill(err)
+						// w.t.Kill(err)
 						return err
 					}
 				}
@@ -201,7 +210,7 @@ START_TAIL:
 func (w *Watcher) parse() error {
 	for {
 		select {
-		case <-w.t.Dying():
+		case <-w.groupCtx.Done():
 			return nil
 		case l := <-w.metricLines:
 			appstats.IncrementInt(w.statMatchedLines)
@@ -253,7 +262,7 @@ func (w *Watcher) parse() error {
 func (w *Watcher) save() error {
 	for {
 		select {
-		case <-w.t.Dying():
+		case <-w.groupCtx.Done():
 			return nil
 		case m := <-w.metrics:
 			w.logger.Info().

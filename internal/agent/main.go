@@ -14,6 +14,7 @@ import (
 
 	"github.com/circonus-labs/circonus-logwatch/internal/config"
 	"github.com/circonus-labs/circonus-logwatch/internal/configs"
+	"github.com/circonus-labs/circonus-logwatch/internal/metrics"
 	"github.com/circonus-labs/circonus-logwatch/internal/metrics/circonus"
 	"github.com/circonus-labs/circonus-logwatch/internal/metrics/logonly"
 	"github.com/circonus-labs/circonus-logwatch/internal/metrics/statsd"

@@ -1,3 +1,15 @@
+# v0.5.0
+
+* upd: include service and example configs in release
+* add: systemd service configuration in `service/`
+* add: example config `etc/example-circonus-logwatch.yaml`
+* upd: change found metric message priority from Info to Debug
+* upd: tomb->context+errgroup
+* add: api ca file load/config for circonus metric destination
+* upd: switch to circonus-gometrics v3
+* upd: condense/consolidate code
+* upd: switch to go mod
+
 # v0.4.0
 
 * upd: release file names use x86_64, facilitate automated builds and testing

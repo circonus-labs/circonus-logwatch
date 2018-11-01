@@ -22,7 +22,17 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
+	tomb "gopkg.in/tomb.v2"
 )
+
+// Agent holds the main circonus-logwatch process
+type Agent struct {
+	watchers   []*watcher.Watcher
+	signalCh   chan os.Signal
+	t          tomb.Tomb
+	destClient metrics.Destination
+	svrHTTP    *http.Server
+}
 
 func init() {
 	http.Handle("/stats", expvar.Handler())

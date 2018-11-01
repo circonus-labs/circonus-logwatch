@@ -1,0 +1,27 @@
+---
+
+log_conf_dir: /opt/circonus/logwatch/etc/log.d
+app_stat_port: "33284"
+debug: false
+debug_cgm: false
+debug_tail: false
+debug_metric: false
+api:
+  key: ""
+  app: circonus-logwatch
+  url: https://api.circonus.com/v2/
+  ca_file: ""
+destination:
+  type: log
+  config:
+    id: circonus-logwatch
+    port: ""
+    statsd_prefix: host.
+    cid: ""
+    url: ""
+    target: ""
+    search_tag: ""
+    instance_id: ""
+log:
+  level: info
+  pretty: false

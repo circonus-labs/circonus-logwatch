@@ -42,6 +42,8 @@ type metricLine struct {
 
 // Watcher defines a new log watcher
 type Watcher struct {
+	ctx              context.Context
+	ctxCancel        context.CancelFunc
 	group            *errgroup.Group
 	groupCtx         context.Context
 	cfg              *configs.Config
@@ -67,9 +69,11 @@ func New(ctx context.Context, metricDest metrics.Destination, logConfig *configs
 	if logConfig == nil {
 		return nil, errors.New("invalid log config (nil)")
 	}
-
-	g, gctx := errgroup.WithContext(ctx)
+	tctx, cancel := context.WithCancel(ctx)
+	g, gctx := errgroup.WithContext(tctx)
 	w := Watcher{
+		ctx:              tctx,
+		ctxCancel:        cancel,
 		group:            g,
 		groupCtx:         gctx,
 		logger:           log.With().Str("pkg", "watcher").Str("log_id", logConfig.ID).Logger(),
@@ -107,6 +111,7 @@ func (w *Watcher) Start() error {
 
 // Stop the watcher
 func (w *Watcher) Stop() error {
+	w.ctxCancel()
 	return w.groupCtx.Err()
 }
 

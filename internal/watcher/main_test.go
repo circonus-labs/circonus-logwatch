@@ -6,6 +6,7 @@
 package watcher
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
@@ -52,7 +53,7 @@ func TestNew(t *testing.T) {
 
 	t.Log("no dest, no log conf")
 	{
-		_, err := New(nil, nil)
+		_, err := New(context.Background(), nil, nil)
 		if err == nil {
 			t.Fatal("expected error")
 		}
@@ -65,7 +66,7 @@ func TestNew(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected no error, got (%s)", err)
 		}
-		if _, err := New(dest, nil); err == nil {
+		if _, err := New(context.Background(), dest, nil); err == nil {
 			t.Fatal("expected error")
 		}
 		viper.Reset()
@@ -74,7 +75,7 @@ func TestNew(t *testing.T) {
 	t.Log("no dest, log conf")
 	{
 		lc := &configs.Config{}
-		if _, err := New(nil, lc); err == nil {
+		if _, err := New(context.Background(), nil, lc); err == nil {
 			t.Fatal("expected error")
 		}
 	}
@@ -87,7 +88,7 @@ func TestNew(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected no error, got (%s)", err)
 		}
-		if _, err := New(dest, lc); err != nil {
+		if _, err := New(context.Background(), dest, lc); err != nil {
 			t.Fatalf("expected no error, got (%s)", err)
 		}
 		viper.Reset()
@@ -105,7 +106,7 @@ func TestStart(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got (%s)", err)
 	}
-	w, err := New(dest, lc)
+	w, err := New(context.Background(), dest, lc)
 	if err != nil {
 		t.Fatalf("expected no error, got (%s)", err)
 	}
@@ -129,7 +130,7 @@ func TestStop(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got (%s)", err)
 	}
-	w, err := New(dest, lc)
+	w, err := New(context.Background(), dest, lc)
 	if err != nil {
 		t.Fatalf("expected no error, got (%s)", err)
 	}
@@ -161,11 +162,11 @@ func TestFull(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got (%s)", err)
 	}
-	w, err := New(dest, cfgs[0])
+	w, err := New(context.Background(), dest, cfgs[0])
 	if err != nil {
 		t.Fatalf("expected no error, got (%s)", err)
 	}
-	time.AfterFunc(5*time.Second, func() {
+	time.AfterFunc(3*time.Second, func() {
 		w.Stop()
 	})
 	if err := w.Start(); err != nil {

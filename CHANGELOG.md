@@ -1,3 +1,14 @@
+# v0.5.2
+
+* upd: dependencies (yaml, x/sync)
+
+# v0.5.1
+
+* upd: dependencies
+* upd: disable dir/file permissions tests
+* add: ctx cancel function for Stop to use
+* fix: calls to New in tests to include a parent context
+
 # v0.5.0
 
 * upd: include service and example configs in release

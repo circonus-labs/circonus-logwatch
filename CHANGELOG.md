@@ -1,3 +1,7 @@
+# v0.5.2
+
+* upd: dependencies (yaml, x/sync)
+
 # v0.5.1
 
 * upd: dependencies

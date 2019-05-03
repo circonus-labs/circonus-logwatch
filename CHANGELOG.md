@@ -1,3 +1,7 @@
+# v0.5.3
+
+* upd: dependencies (cgm - allow/deny checks default, etc.)
+
 # v0.5.2
 
 * upd: dependencies (yaml, x/sync)

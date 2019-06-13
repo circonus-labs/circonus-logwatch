@@ -163,7 +163,7 @@ func init() {
 			key         = config.KeyDestCfgCID
 			longOpt     = "dest-cid"
 			envVar      = release.ENVPREFIX + "_DEST_CID"
-			description = "Destination[check] Check Bundle ID"
+			description = "Destination[check] Check ID (not check bundle id)"
 		)
 
 		RootCmd.Flags().String(longOpt, "", desc(description, envVar))

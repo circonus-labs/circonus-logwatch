@@ -1,3 +1,7 @@
+# v0.5.4
+
+* fix: clarify setting for check, it is a check id not a check bundle id
+
 # v0.5.3
 
 * upd: dependencies (cgm - allow/deny checks default, etc.)

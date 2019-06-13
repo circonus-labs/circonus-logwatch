@@ -28,7 +28,7 @@ Flags:
       --debug-metric                [ENV: CLW_DEBUG_METRIC] Enable metric rule evaluation tracing debug messages
       --debug-tail                  [ENV: CLW_DEBUG_TAIL] Enable log tailing messages
       --dest string                 [ENV: CLW_DESTINATION] Destination[agent|check|log|statsd] type for metrics (default "log")
-      --dest-cid string             [ENV: CLW_DEST_CID] Destination[check] Check Bundle ID
+      --dest-cid string             [ENV: CLW_DEST_CID] Destination[check] Check ID (not check bundle)
       --dest-id string              [ENV: CLW_DEST_ID] Destination[statsd|agent] metric group ID (default "circonus-logwatch")
       --dest-instance-id string     [ENV: CLW_DEST_INSTANCE_ID] Destination[check] Check Instance ID
       --dest-port string            [ENV: CLW_DEST_PORT] Destination[agent|statsd] port (agent=2609, statsd=8125)
@@ -79,6 +79,9 @@ destination:
 ```
 
 JSON with a Check destination (send metrics directly to a Circonus check, a check will be created if not supplied via cid or url config settings)
+
+> NOTE: use `cid` or `url` to identify an existing check. Or, to search for a check a combination of `target`, `search_tag` and/or `instance_id`.
+
 ```json
 {
     "api": {
@@ -95,7 +98,7 @@ JSON with a Check destination (send metrics directly to a Circonus check, a chec
     "destination": {
         "type": "check",
         "config": {
-            "cid": "check bundle id (of existing check)",
+            "cid": "check id (of existing check)",
             "url": "submission url of existing check",
             "target": "to find|create a check",
             "search_tag": "to find|create a check",

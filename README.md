@@ -2,8 +2,6 @@
 
 A small utility for extracting metrics from log files and forwarding to Circonus.
 
->NOTE: This is a "proof of concept" project, the design and implementation is still subject to change. As such, the code is volatile - please ensure the [latest release](../../releases/latest) is being used.
-
 ## Install
 
 1. `mkdir -p /opt/circonus/{sbin,etc,etc/log.d}`

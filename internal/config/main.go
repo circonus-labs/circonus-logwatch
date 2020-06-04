@@ -120,6 +120,9 @@ const (
 	// KeyDestType of destination where metrics are being sent (none|statsd|agent|check)
 	KeyDestType = "destination.type"
 
+	// KeyDestInterval send metrics this often, parsed as a time.Duration (agent)
+	KeyDestInterval = "destination.config.interval"
+
 	// KeyDestCfgID for destination type (statsd|agent)
 	KeyDestCfgID = "destination.config.id"
 

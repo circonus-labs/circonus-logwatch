@@ -1,3 +1,13 @@
+# v0.6.0
+
+* Merge pull request #12 from yargevad/agent-interval
+* upd: depedencies, tidy
+* upd: deprecated syntax
+* add: agent interval to config, command line
+* fix: lint issues
+* add: build linting
+* doc: agent interval
+
 # v0.5.4
 
 * fix: clarify setting for check, it is a check id not a check bundle id

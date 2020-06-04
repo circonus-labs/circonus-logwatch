@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	stdlog "log"
+	"time"
 
 	cgm "github.com/circonus-labs/circonus-gometrics/v3"
 	"github.com/circonus-labs/circonus-logwatch/internal/config"
@@ -43,7 +44,17 @@ func New() (*Circonus, error) {
 			Debug: viper.GetBool(config.KeyDebugCGM),
 			Log:   stdlog.New(log.With().Str("pkg", "dest-agent").Logger(), "", 0),
 		}
-		cmc.Interval = "60s"
+
+		interval := viper.GetString(config.KeyDestInterval)
+		if interval == "" {
+			interval = "60s"
+		}
+		_, err := time.ParseDuration(interval)
+		if err != nil {
+			return nil, errors.Wrap(err, "parsing destination interval")
+		}
+		cmc.Interval = interval
+
 		cmc.CheckManager.Check.SubmissionURL = sURL
 		c, err := cgm.New(cmc)
 		if err != nil {

@@ -243,6 +243,19 @@ func init() {
 		viper.BindEnv(key, envVar)
 		viper.SetDefault(key, defaults.StatsdPrefix)
 	}
+	{
+		const (
+			key         = config.KeyDestCfgAgentInterval
+			longOpt     = "dest-agent-interval"
+			envVar      = release.ENVPREFIX + "_DEST_AGENT_INTERVAL"
+			description = "Destination[agent] Interval for metric submission to agent"
+		)
+
+		RootCmd.Flags().String(longOpt, defaults.AgentInterval, desc(description, envVar))
+		viper.BindPFlag(key, RootCmd.Flags().Lookup(longOpt))
+		viper.BindEnv(key, envVar)
+		viper.SetDefault(key, defaults.AgentInterval)
+	}
 
 	//
 	// API

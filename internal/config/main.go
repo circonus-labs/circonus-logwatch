@@ -42,14 +42,15 @@ type API struct {
 
 // DestConfig defines the running config.destination.config structure
 type DestConfig struct {
-	ID           string `json:"id" yaml:"id" toml:"id"`
-	Port         string `json:"port" yaml:"port" toml:"port"`
-	StatsdPrefix string `mapstructure:"statsd_prefix" json:"statsd_prefix" yaml:"statsd_prefix" toml:"statsd_prefix"`
-	CID          string `json:"cid" yaml:"cid" toml:"cid"`
-	URL          string `json:"url" yaml:"url" toml:"url"`
-	Target       string `json:"target" yaml:"target" toml:"target"`
-	SearchTag    string `mapstructure:"search_tag" json:"search_tag" yaml:"search_tag" toml:"search_tag"`
-	InstanceID   string `mapstructure:"instance_id" json:"instance_id" yaml:"instance_id" toml:"instance_id"`
+	ID            string `json:"id" yaml:"id" toml:"id"`
+	Port          string `json:"port" yaml:"port" toml:"port"`
+	StatsdPrefix  string `mapstructure:"statsd_prefix" json:"statsd_prefix" yaml:"statsd_prefix" toml:"statsd_prefix"`
+	CID           string `json:"cid" yaml:"cid" toml:"cid"`
+	URL           string `json:"url" yaml:"url" toml:"url"`
+	Target        string `json:"target" yaml:"target" toml:"target"`
+	SearchTag     string `mapstructure:"search_tag" json:"search_tag" yaml:"search_tag" toml:"search_tag"`
+	InstanceID    string `mapstructure:"instance_id" json:"instance_id" yaml:"instance_id" toml:"instance_id"`
+	AgentInterval string `mapstructure:"agent_interval" json:"agent_interval" toml:"agent_interval" yaml:"agent_interval"`
 }
 
 // Destination defines the running config.destination structure
@@ -120,9 +121,6 @@ const (
 	// KeyDestType of destination where metrics are being sent (none|statsd|agent|check)
 	KeyDestType = "destination.type"
 
-	// KeyDestInterval send metrics this often, parsed as a time.Duration (agent)
-	KeyDestInterval = "destination.config.interval"
-
 	// KeyDestCfgID for destination type (statsd|agent)
 	KeyDestCfgID = "destination.config.id"
 
@@ -147,8 +145,11 @@ const (
 	// KeyDestCfgStatsdPrefix to prepend on every metric
 	KeyDestCfgStatsdPrefix = "destination.config.statsd_prefix"
 
+	// KeyDestCfgAgentInterval send metrics this often, parsed as a time.Duration (agent)
+	KeyDestCfgAgentInterval = "destination.config.agent_interval"
+
 	// KeyDestAgentURL defines the submission url for the agent destination
-	// NOTE: this is dymanically created by config validation, it is NOT part of Config
+	// NOTE: this is dynamically created by config validation, it is NOT part of Config
 	KeyDestAgentURL = "destination.agentURL"
 
 	cosiName = "cosi"

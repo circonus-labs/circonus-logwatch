@@ -1,5 +1,10 @@
 project_name: circonus-logwatch
 
+before:
+    hooks:
+        - go mod tidy
+        - ./build_lint.sh
+
 builds:
     -
         main: main.go
@@ -9,14 +14,12 @@ builds:
         env:
             - CGO_ENABLED=0
 
-        flags: -tags dev
+        flags: 
+            #- -tags dev
 
         goos:
             - linux
-            # - darwin
-            # - windows
             - freebsd
-            # - solaris
 
         goarch:
             - amd64
@@ -27,32 +30,34 @@ builds:
 
         ldflags: -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.tag={{.Tag}}
 
-archive:
-    name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}_{{.Arch}}"
+archives:
+    - 
+        id: default
+        name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}_{{.Arch}}"
 
-    format: tar.gz
+        format: tar.gz
 
-    replacements:
-        amd64: x86_64
+        replacements:
+            amd64: x86_64
 
-    format_overrides:
-        - goos: windows
-          format: zip
+        format_overrides:
+            - goos: windows
+              format: zip
 
-    files:
-        - LICENSE
-        - README.md
-        - CHANGELOG.md
-        - service/*
-        - etc/example-circonus-logwatch.yaml
-        - etc/log.d/README.md
+        files:
+            - LICENSE
+            - README.md
+            - CHANGELOG.md
+            - service/*
+            - etc/example-circonus-logwatch.yaml
+            - etc/log.d/README.md
 
 release:
     github:
         owner: circonus-labs
         name: circonus-logwatch
 
-    draft: false
+    prerelease: auto
 
 snapshot:
     name_template: SNAPSHOT-{{.Commit}}

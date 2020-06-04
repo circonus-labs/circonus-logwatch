@@ -147,7 +147,7 @@ func (c *Statsd) send(metric string) error {
 
 	c.logger.Debug().Str("metric", m).Msg("sending")
 
-	_, err := fmt.Fprintf(c.conn, m)
+	_, err := fmt.Fprint(c.conn, m)
 	if err != nil {
 		return err
 	}

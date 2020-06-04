@@ -40,11 +40,22 @@ func TestNew(t *testing.T) {
 		}
 		viper.Reset()
 	}
+	t.Log("invalid, agent (invalid interval)")
+	{
+		viper.Set(config.KeyDestType, "agent")
+		viper.Set(config.KeyDestCfgAgentInterval, "-1")
+		_, err := New()
+		if err == nil {
+			t.Fatal("expected error")
+		}
+		viper.Reset()
+	}
 
 	t.Log("valid, agent")
 	{
 		viper.Set(config.KeyDestType, "agent")
 		viper.Set(config.KeyDestAgentURL, ts.URL)
+		viper.Set(config.KeyDestCfgAgentInterval, "10s")
 		_, err := New()
 		if err != nil {
 			t.Fatalf("expected no error, got (%s)", err)

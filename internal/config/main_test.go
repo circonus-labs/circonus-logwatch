@@ -63,7 +63,7 @@ func TestValidate(t *testing.T) {
 
 	t.Log("log conf dir, dest agent")
 	{
-		ts, _ := net.Listen("tcp", ":2609")
+		ts, _ := net.Listen("tcp", "127.0.0.1:2609")
 		viper.Set(KeyDestType, "agent")
 		viper.Set(KeyLogConfDir, "testdata/")
 		err := Validate()
@@ -176,7 +176,7 @@ func TestDestConf(t *testing.T) {
 
 	t.Log("agent, listening")
 	{
-		ts, _ := net.Listen("tcp", ":2609")
+		ts, _ := net.Listen("tcp", "127.0.0.1:2609")
 		viper.Set(KeyDestType, "agent")
 		if err := destConf(); err != nil {
 			t.Fatalf("expected no error, got (%s)", err)
@@ -355,7 +355,7 @@ func TestApiConf(t *testing.T) {
 		viper.Set(KeyAPITokenKey, "foo")
 		viper.Set(KeyAPITokenApp, "foo")
 		viper.Set(KeyAPIURL, "foo_bar://herp/derp")
-		expectedError := errors.New("Invalid API URL: parse foo_bar://herp/derp: first path segment in URL cannot contain colon")
+		expectedError := errors.New(`Invalid API URL: parse "foo_bar://herp/derp": first path segment in URL cannot contain colon`)
 		err := apiConf()
 		if err == nil {
 			t.Fatal("Expected error")

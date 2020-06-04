@@ -111,7 +111,7 @@ func TestStart(t *testing.T) {
 		t.Fatalf("expected no error, got (%s)", err)
 	}
 	time.AfterFunc(1*time.Second, func() {
-		w.Stop()
+		_ = w.Stop()
 	})
 	if err := w.Start(); err != nil {
 		t.Fatalf("expected no error, got (%s)", err)
@@ -135,7 +135,7 @@ func TestStop(t *testing.T) {
 		t.Fatalf("expected no error, got (%s)", err)
 	}
 	time.AfterFunc(1*time.Second, func() {
-		w.Stop()
+		_ = w.Stop()
 	})
 	if err := w.Start(); err != nil {
 		t.Fatalf("expected no error, got (%s)", err)
@@ -167,7 +167,7 @@ func TestFull(t *testing.T) {
 		t.Fatalf("expected no error, got (%s)", err)
 	}
 	time.AfterFunc(3*time.Second, func() {
-		w.Stop()
+		_ = w.Stop()
 	})
 	if err := w.Start(); err != nil {
 		t.Fatalf("expected no error, got (%s)", err)

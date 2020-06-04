@@ -38,6 +38,9 @@ const (
 	// AgentPort for circonus-agent
 	AgentPort = "2609"
 
+	// AgentInterval to submit metrics
+	AgentInterval = "60s"
+
 	// StatsdPort for circonus-agent
 	StatsdPort = "8125"
 

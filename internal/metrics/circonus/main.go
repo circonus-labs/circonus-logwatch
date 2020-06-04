@@ -15,6 +15,7 @@ import (
 
 	cgm "github.com/circonus-labs/circonus-gometrics/v3"
 	"github.com/circonus-labs/circonus-logwatch/internal/config"
+	"github.com/circonus-labs/circonus-logwatch/internal/config/defaults"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -45,9 +46,9 @@ func New() (*Circonus, error) {
 			Log:   stdlog.New(log.With().Str("pkg", "dest-agent").Logger(), "", 0),
 		}
 
-		interval := viper.GetString(config.KeyDestInterval)
+		interval := viper.GetString(config.KeyDestCfgAgentInterval)
 		if interval == "" {
-			interval = "60s"
+			interval = defaults.AgentInterval
 		}
 		_, err := time.ParseDuration(interval)
 		if err != nil {
@@ -152,7 +153,7 @@ func (c *Circonus) IncrementCounterByValue(metric string, value uint64) error { 
 
 // AddSetValue sends a unique value to the set metric
 func (c *Circonus) AddSetValue(metric string, value string) error { // set metric (ala statsd, counts unique values)
-	c.IncrementCounter(fmt.Sprintf("%s`%s", metric, value))
+	_ = c.IncrementCounter(fmt.Sprintf("%s`%s", metric, value))
 	return nil
 }
 

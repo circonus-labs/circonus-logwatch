@@ -149,7 +149,7 @@ const (
 	KeyDestCfgAgentInterval = "destination.config.agent_interval"
 
 	// KeyDestAgentURL defines the submission url for the agent destination
-	// NOTE: this is dymanically created by config validation, it is NOT part of Config
+	// NOTE: this is dynamically created by config validation, it is NOT part of Config
 	KeyDestAgentURL = "destination.agentURL"
 
 	cosiName = "cosi"

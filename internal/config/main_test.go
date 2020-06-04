@@ -63,7 +63,7 @@ func TestValidate(t *testing.T) {
 
 	t.Log("log conf dir, dest agent")
 	{
-		ts, _ := net.Listen("tcp", ":2609")
+		ts, _ := net.Listen("tcp", "127.0.0.1:2609")
 		viper.Set(KeyDestType, "agent")
 		viper.Set(KeyLogConfDir, "testdata/")
 		err := Validate()
@@ -176,7 +176,7 @@ func TestDestConf(t *testing.T) {
 
 	t.Log("agent, listening")
 	{
-		ts, _ := net.Listen("tcp", ":2609")
+		ts, _ := net.Listen("tcp", "127.0.0.1:2609")
 		viper.Set(KeyDestType, "agent")
 		if err := destConf(); err != nil {
 			t.Fatalf("expected no error, got (%s)", err)

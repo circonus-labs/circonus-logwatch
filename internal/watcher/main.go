@@ -86,8 +86,8 @@ func New(ctx context.Context, metricDest metrics.Destination, logConfig *configs
 		statTotalLines:   logConfig.ID + "_lines_total",
 	}
 
-	appstats.NewInt(w.statMatchedLines)
-	appstats.NewInt(w.statTotalLines)
+	_ = appstats.NewInt(w.statMatchedLines)
+	_ = appstats.NewInt(w.statTotalLines)
 
 	return &w, nil
 }
@@ -99,10 +99,10 @@ func (w *Watcher) Start() error {
 	w.group.Go(w.process)
 
 	go func() {
-		select {
-		case <-w.groupCtx.Done():
-			w.logger.Debug().Msg("stopping watcher process")
-			w.Stop()
+		<-w.groupCtx.Done()
+		w.logger.Debug().Msg("stopping watcher process")
+		if err := w.Stop(); err != nil {
+			w.logger.Error().Err(err).Msg("stopping watcher process")
 		}
 	}()
 
@@ -169,7 +169,7 @@ START_TAIL:
 				w.logger.Warn().Msg("nil line, ignoring")
 				continue
 			}
-			appstats.IncrementInt(w.statTotalLines)
+			_ = appstats.IncrementInt(w.statTotalLines)
 			if line.Err != nil {
 				w.logger.Error().
 					Err(line.Err).
@@ -207,8 +207,6 @@ START_TAIL:
 			}
 		}
 	}
-
-	return nil
 }
 
 // parse log line to extract metric
@@ -219,7 +217,7 @@ func (w *Watcher) parse() error {
 			w.logger.Debug().Msg("ctx done, stopping parse")
 			return nil
 		case l := <-w.metricLines:
-			appstats.IncrementInt(w.statMatchedLines)
+			_ = appstats.IncrementInt(w.statMatchedLines)
 			if w.trace {
 				w.logger.Log().
 					Int("metric_id", l.metricID).
@@ -253,7 +251,9 @@ func (w *Watcher) parse() error {
 				}
 				if r.Namer != nil {
 					var b bytes.Buffer
-					r.Namer.Execute(&b, *l.matches)
+					if err := r.Namer.Execute(&b, *l.matches); err != nil {
+						w.logger.Warn().Err(err).Msg("namer exec")
+					}
 					m.Name = fmt.Sprintf("%s`%s", w.cfg.ID, b.String())
 				}
 			}
@@ -261,7 +261,6 @@ func (w *Watcher) parse() error {
 			w.metrics <- m
 		}
 	}
-	return nil
 }
 
 // save metrics to configured destination
@@ -282,22 +281,22 @@ func (w *Watcher) save() error {
 				if err != nil {
 					w.logger.Warn().Err(err).Msg(m.Name)
 				} else {
-					w.dest.IncrementCounterByValue(m.Name, v)
+					_ = w.dest.IncrementCounterByValue(m.Name, v)
 				}
 			case "g":
-				w.dest.SetGaugeValue(m.Name, m.Value)
+				_ = w.dest.SetGaugeValue(m.Name, m.Value)
 			case "h":
 				v, err := strconv.ParseFloat(m.Value, 64)
 				if err != nil {
 					w.logger.Warn().Err(err).Msg(m.Name)
 				} else {
-					w.dest.SetHistogramValue(m.Name, v)
+					_ = w.dest.SetHistogramValue(m.Name, v)
 				}
 			case "ms":
 				// parse as float
 				v, errFloat := strconv.ParseFloat(m.Value, 64)
 				if errFloat == nil {
-					w.dest.SetTimingValue(m.Name, v)
+					_ = w.dest.SetTimingValue(m.Name, v)
 					continue
 				}
 				// try parsing as a duration (e.g. 60ms, 1m, 3s)
@@ -306,11 +305,11 @@ func (w *Watcher) save() error {
 					w.logger.Warn().Err(errFloat).Err(errDuration).Str("metric", m.Name).Msg("failed to parse timing as float or duration")
 					continue
 				}
-				w.dest.SetTimingValue(m.Name, float64(dur/time.Millisecond))
+				_ = w.dest.SetTimingValue(m.Name, float64(dur/time.Millisecond))
 			case "s":
-				w.dest.AddSetValue(m.Name, m.Value)
+				_ = w.dest.AddSetValue(m.Name, m.Value)
 			case "t":
-				w.dest.SetTextValue(m.Name, m.Value)
+				_ = w.dest.SetTextValue(m.Name, m.Value)
 			default:
 				w.logger.Warn().
 					Str("type", m.Type).
@@ -320,5 +319,4 @@ func (w *Watcher) save() error {
 			}
 		}
 	}
-	return nil
 }

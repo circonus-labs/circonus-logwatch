@@ -26,6 +26,7 @@ Flags:
       --debug-metric                [ENV: CLW_DEBUG_METRIC] Enable metric rule evaluation tracing debug messages
       --debug-tail                  [ENV: CLW_DEBUG_TAIL] Enable log tailing messages
       --dest string                 [ENV: CLW_DESTINATION] Destination[agent|check|log|statsd] type for metrics (default "log")
+      --dest-agent-interval string  [ENV: CLW_DEST_AGENT_INTERVAL] Destination[agent] Interval for metric submission to agent (default "60s")
       --dest-cid string             [ENV: CLW_DEST_CID] Destination[check] Check ID (not check bundle)
       --dest-id string              [ENV: CLW_DEST_ID] Destination[statsd|agent] metric group ID (default "circonus-logwatch")
       --dest-instance-id string     [ENV: CLW_DEST_INSTANCE_ID] Destination[check] Check Instance ID

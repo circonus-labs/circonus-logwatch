@@ -13,9 +13,11 @@ metrics:
     type: h
   # latency histogram by request path
   - match: ' (?P<path>/[^ ]*) HTTP.+tm:(?P<value>[0-9.]+)'
-    name: '{{.path}}`latency'
+    name: 'latency'
+    tags: 'path:{{.path}}'
     type: h
   # latency histogram by request path and specific request methods
   - match: '(?P<method>(GET|POST|PUT)) (?P<path>/[^ ]*) HTTP.+tm:(?P<value>[0-9.]+)'
-    name: '{{.path}}`{{.method}}`latency'
+    name: 'latency'
+    tags: 'path:{{.path}},method:{{.method}}'
     type: h

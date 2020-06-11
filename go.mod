@@ -4,8 +4,7 @@ go 1.14
 
 require (
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d
-	github.com/circonus-labs/circonus-gometrics/v3 v3.0.0
-	github.com/hashicorp/go-retryablehttp v0.6.6 // indirect
+	github.com/circonus-labs/circonus-gometrics/v3 v3.0.1
 	github.com/hpcloud/tail v1.0.0
 	github.com/maier/go-appstats v0.2.0
 	github.com/pelletier/go-toml v1.8.0

@@ -1,10 +1,10 @@
 # v1.0.0-beta.1
 
-* UPDATE - streamtag only release
-* add: streamtag support
-* upd: log id in source tag
-* add: support `tag` attribute to metric stanza in configuration
-* add: support interpolation of named regex patterns in tag attribute
+* UPDATE - stream tag only release
+* add: stream tag support
+* upd: log id in tag `log_id`
+* add: support `tags` attribute to metric stanza in configuration
+* add: support interpolation of named regex patterns in `tags` attribute
 * upd: depdencies (cgm)
 
 # v0.6.0

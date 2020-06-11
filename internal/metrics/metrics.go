@@ -16,13 +16,20 @@ package metrics
 
 // Destination defines the interface required by the metric destination
 type Destination interface {
-	AddSetValue(string, string) error             // type 's'  - set metric (ala statsd, counts unique values)
-	IncrementCounter(string) error                // type 'c'  - counter (monotonically increasing value)
-	IncrementCounterByValue(string, uint64) error // type 'c'  - counter (monotonically increasing value)
-	SetGaugeValue(string, interface{}) error      // type 'g'  - gauge (ints or floats)
-	SetHistogramValue(string, float64) error      // type 'h'  - histogram
-	SetTextValue(string, string) error            // type 't'  - text metric
-	SetTimingValue(string, float64) error         // type 'ms' - histogram
+	AddSetValue(string, string) error                               // type 's'  - set metric (ala statsd, counts unique values)
+	AddSetValueWithTags(string, []string, string) error             // type 's'  - set metric (ala statsd, counts unique values) with tags
+	IncrementCounter(string) error                                  // type 'c'  - counter (monotonically increasing value)
+	IncrementCounterWithTags(string, []string) error                // type 'c'  - counter (monotonically increasing value) with tags
+	IncrementCounterByValue(string, uint64) error                   // type 'c'  - counter (monotonically increasing value)
+	IncrementCounterByValueWithTags(string, []string, uint64) error // type 'c'  - counter (monotonically increasing value) with tags
+	SetGaugeValue(string, interface{}) error                        // type 'g'  - gauge (ints or floats)
+	SetGaugeValueWithTags(string, []string, interface{}) error      // type 'g'  - gauge (ints or floats) with tags
+	SetHistogramValue(string, float64) error                        // type 'h'  - histogram
+	SetHistogramValueWithTags(string, []string, float64) error      // type 'h'  - histogram with tags
+	SetTextValue(string, string) error                              // type 't'  - text metric
+	SetTextValueWithTags(string, []string, string) error            // type 't'  - text metric with tags
+	SetTimingValue(string, float64) error                           // type 'ms' - histogram
+	SetTimingValueWithTags(string, []string, float64) error         // type 'ms' - histogram with tags
 	Start() error
 	Stop() error
 }

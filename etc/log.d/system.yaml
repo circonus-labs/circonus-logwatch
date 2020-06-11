@@ -5,5 +5,6 @@ log_file: /var/log/system.log
 metrics:
     # Static name
     - match: '(?P<app>[A-Za-z]+)\[[0-9]+\]:\s+Unlocked user...'
-      name: '{{.app}}`unlocked`user'
+      name: 'unlocked_user'
+      tags: 'app:{{.app}},foo:bar'
       type: c

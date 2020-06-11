@@ -31,6 +31,7 @@ import (
 type metric struct {
 	Name  string
 	Type  string
+	Tags  []string
 	Value string
 }
 
@@ -201,8 +202,8 @@ START_TAIL:
 						ml.matches = &m
 					}
 					w.metricLines <- ml
-					// NOTE: do not 'break' on match, a single
-					//       line may generate multiple metrics.
+					// NOTE: do not 'break' on match, a single log
+					//       line may generate multiple metrics, matching multiple config rules.
 				}
 			}
 		}
@@ -228,7 +229,8 @@ func (w *Watcher) parse() error {
 
 			r := w.cfg.Metrics[l.metricID]
 			m := metric{
-				Name: fmt.Sprintf("%s`%s", w.cfg.ID, r.Name),
+				Name: r.Name,
+				Tags: []string{"log_id:" + w.cfg.ID},
 				Type: r.Type,
 			}
 
@@ -236,26 +238,41 @@ func (w *Watcher) parse() error {
 				m.Value = "1" // default to simple incrment by 1
 			}
 
-			if l.matches != nil {
-				if r.ValueKey != "" {
-					v, ok := (*l.matches)[r.ValueKey]
-					if !ok {
-						w.logger.Warn().
-							Str("value_key", r.ValueKey).
-							Str("line", l.line).
-							Interface("matches", *l.matches).
-							Msg("'Value' key defined but not found in matches")
-						continue
-					}
-					m.Value = v
+			if l.matches == nil {
+				if r.Tags != "" {
+					m.Tags = append(m.Tags, strings.Split(r.Tags, ",")...)
 				}
-				if r.Namer != nil {
-					var b bytes.Buffer
-					if err := r.Namer.Execute(&b, *l.matches); err != nil {
-						w.logger.Warn().Err(err).Msg("namer exec")
-					}
-					m.Name = fmt.Sprintf("%s`%s", w.cfg.ID, b.String())
+				w.metrics <- m
+				continue
+			}
+
+			if r.ValueKey != "" {
+				v, ok := (*l.matches)[r.ValueKey]
+				if !ok {
+					w.logger.Warn().
+						Str("value_key", r.ValueKey).
+						Str("line", l.line).
+						Interface("matches", *l.matches).
+						Msg("'Value' key defined but not found in matches")
+					continue
 				}
+				m.Value = v
+			}
+			if r.Namer != nil {
+				var b bytes.Buffer
+				if err := r.Namer.Execute(&b, *l.matches); err != nil {
+					w.logger.Warn().Err(err).Msg("namer exec")
+				}
+				m.Name = b.String()
+			}
+			if r.Tagger != nil {
+				var b bytes.Buffer
+				if err := r.Tagger.Execute(&b, *l.matches); err != nil {
+					w.logger.Warn().Err(err).Msg("tagger exec")
+				}
+				m.Tags = append(m.Tags, strings.Split(b.String(), ",")...)
+			} else if r.Tags != "" {
+				m.Tags = append(m.Tags, strings.Split(r.Tags, ",")...)
 			}
 
 			w.metrics <- m
@@ -281,22 +298,38 @@ func (w *Watcher) save() error {
 				if err != nil {
 					w.logger.Warn().Err(err).Msg(m.Name)
 				} else {
-					_ = w.dest.IncrementCounterByValue(m.Name, v)
+					if len(m.Tags) > 0 {
+						_ = w.dest.IncrementCounterByValueWithTags(m.Name, m.Tags, v)
+					} else {
+						_ = w.dest.IncrementCounterByValue(m.Name, v)
+					}
 				}
 			case "g":
-				_ = w.dest.SetGaugeValue(m.Name, m.Value)
+				if len(m.Tags) > 0 {
+					_ = w.dest.SetGaugeValueWithTags(m.Name, m.Tags, m.Value)
+				} else {
+					_ = w.dest.SetGaugeValue(m.Name, m.Value)
+				}
 			case "h":
 				v, err := strconv.ParseFloat(m.Value, 64)
 				if err != nil {
 					w.logger.Warn().Err(err).Msg(m.Name)
 				} else {
-					_ = w.dest.SetHistogramValue(m.Name, v)
+					if len(m.Tags) > 0 {
+						_ = w.dest.SetHistogramValueWithTags(m.Name, m.Tags, v)
+					} else {
+						_ = w.dest.SetHistogramValue(m.Name, v)
+					}
 				}
 			case "ms":
 				// parse as float
 				v, errFloat := strconv.ParseFloat(m.Value, 64)
 				if errFloat == nil {
-					_ = w.dest.SetTimingValue(m.Name, v)
+					if len(m.Tags) > 0 {
+						_ = w.dest.SetTimingValueWithTags(m.Name, m.Tags, v)
+					} else {
+						_ = w.dest.SetTimingValue(m.Name, v)
+					}
 					continue
 				}
 				// try parsing as a duration (e.g. 60ms, 1m, 3s)
@@ -305,15 +338,28 @@ func (w *Watcher) save() error {
 					w.logger.Warn().Err(errFloat).Err(errDuration).Str("metric", m.Name).Msg("failed to parse timing as float or duration")
 					continue
 				}
-				_ = w.dest.SetTimingValue(m.Name, float64(dur/time.Millisecond))
+				if len(m.Tags) > 0 {
+					_ = w.dest.SetTimingValueWithTags(m.Name, m.Tags, float64(dur/time.Millisecond))
+				} else {
+					_ = w.dest.SetTimingValue(m.Name, float64(dur/time.Millisecond))
+				}
 			case "s":
-				_ = w.dest.AddSetValue(m.Name, m.Value)
+				if len(m.Tags) > 0 {
+					_ = w.dest.AddSetValueWithTags(m.Name, m.Tags, m.Value)
+				} else {
+					_ = w.dest.AddSetValue(m.Name, m.Value)
+				}
 			case "t":
-				_ = w.dest.SetTextValue(m.Name, m.Value)
+				if len(m.Tags) > 0 {
+					_ = w.dest.SetTextValueWithTags(m.Name, m.Tags, m.Value)
+				} else {
+					_ = w.dest.SetTextValue(m.Name, m.Value)
+				}
 			default:
 				w.logger.Warn().
 					Str("type", m.Type).
 					Str("name", m.Name).
+					Strs("tags", m.Tags).
 					Interface("val", m.Value).
 					Msg("metric, unknown type")
 			}

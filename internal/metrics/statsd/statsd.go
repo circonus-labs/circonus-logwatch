@@ -12,6 +12,7 @@ import (
 	"math/big"
 	"math/rand"
 	"net"
+	"strings"
 	"sync"
 	"time"
 
@@ -91,9 +92,23 @@ func (c *Statsd) SetGaugeValue(metric string, value interface{}) error { // gaug
 	return c.send(fmt.Sprintf("%s:%s|g", metric, v))
 }
 
+// SetGaugeValueWithTags sends a gauge metric
+func (c *Statsd) SetGaugeValueWithTags(metric string, tags []string, value interface{}) error { // gauge (ints or floats)
+	v, err := getGaugeValue(value)
+	if err != nil {
+		return err
+	}
+	return c.send(fmt.Sprintf("%s:%s|g|#%s", metric, v, strings.Join(tags, ",")))
+}
+
 // SetTimingValue sends a timing metric
 func (c *Statsd) SetTimingValue(metric string, value float64) error { // histogram
 	return c.SetHistogramValue(metric, value)
+}
+
+// SetTimingValueWithTags sends a timing metric
+func (c *Statsd) SetTimingValueWithTags(metric string, tags []string, value float64) error { // histogram
+	return c.SetHistogramValueWithTags(metric, tags, value)
 }
 
 // SetHistogramValue sends a histogram metric
@@ -101,9 +116,19 @@ func (c *Statsd) SetHistogramValue(metric string, value float64) error { // hist
 	return c.send(fmt.Sprintf("%s:%e|ms", metric, value))
 }
 
+// SetHistogramValueWithTags sends a histogram metric
+func (c *Statsd) SetHistogramValueWithTags(metric string, tags []string, value float64) error { // histogram
+	return c.send(fmt.Sprintf("%s:%e|ms|#%s", metric, value, strings.Join(tags, ",")))
+}
+
 // IncrementCounter sends a counter increment
 func (c *Statsd) IncrementCounter(metric string) error { // counter (monotonically increasing value)
 	return c.IncrementCounterByValue(metric, 1)
+}
+
+// IncrementCounterWithTags sends a counter increment
+func (c *Statsd) IncrementCounterWithTags(metric string, tags []string) error { // counter (monotonically increasing value)
+	return c.IncrementCounterByValueWithTags(metric, tags, 1)
 }
 
 // IncrementCounterByValue sends value to add to counter
@@ -111,9 +136,19 @@ func (c *Statsd) IncrementCounterByValue(metric string, value uint64) error { //
 	return c.send(fmt.Sprintf("%s:%d|c", metric, value))
 }
 
+// IncrementCounterByValueWithTags sends value to add to counter
+func (c *Statsd) IncrementCounterByValueWithTags(metric string, tags []string, value uint64) error { // counter (monotonically increasing value)
+	return c.send(fmt.Sprintf("%s:%d|c|#%s", metric, value, strings.Join(tags, ",")))
+}
+
 // AddSetValue sends a unique value to the set metric
 func (c *Statsd) AddSetValue(metric string, value string) error { // set metric (ala statsd, counts unique values)
 	return c.send(fmt.Sprintf("%s:%s|s", metric, value))
+}
+
+// AddSetValueWithTags sends a unique value to the set metric
+func (c *Statsd) AddSetValueWithTags(metric string, tags []string, value string) error { // set metric (ala statsd, counts unique values)
+	return c.send(fmt.Sprintf("%s:%s|s|#%s", metric, value, strings.Join(tags, ",")))
 }
 
 // SetTextValue sends a text metric
@@ -121,17 +156,22 @@ func (c *Statsd) SetTextValue(metric string, value string) error { // text metri
 	return c.send(fmt.Sprintf("%s:%s|t", metric, value))
 }
 
+// SetTextValueWithTags sends a text metric
+func (c *Statsd) SetTextValueWithTags(metric string, tags []string, value string) error { // text metric
+	return c.send(fmt.Sprintf("%s:%s|t|#%s", metric, value, strings.Join(tags, ",")))
+}
+
 // send stats data to udp statsd daemon
 //
 // Outgoing metric format:
 //
-//   name:value|type[@rate]
+//   name:value|type[|#tags]
 //
 // e.g.
 //   foo:1|c
-//   foo:1|c@0.5
+//   foo:1|c|#foo:bar
 //   bar:2.5|ms
-//   bar:2.5|ms@.25
+//   bar:2.5|ms|#foo:bar,baz:qux
 //   baz:25|g
 //   qux:abcd123|s
 //   dib:38.282|h

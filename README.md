@@ -2,6 +2,8 @@
 
 A small utility for extracting metrics from log files and forwarding to Circonus.
 
+> Note: In v1 all metrics use stream tags, for non-stream tagged metrics use the v0 branch/releases.
+
 ## Install
 
 1. `mkdir -p /opt/circonus/{sbin,etc,etc/log.d}`
@@ -10,11 +12,10 @@ A small utility for extracting metrics from log files and forwarding to Circonus
 1. Create config in `/opt/circonus/etc` and log configs in `/opt/circonus/etc/log.d`
 
 ## Options
-```
-$ /opt/circonus/sbin/circonus-logwatchd -h
-```
 
-```
+```sh
+/opt/circonus/sbin/circonus-logwatchd -h
+
 Flags:
       --api-app string              [ENV: CLW_API_APP] Circonus API Token app (default "circonus-logwatch")
       --api-ca-file string          [ENV: CLW_API_CA_FILE] Circonus API CA certificate file (optional, Inside API server not using public certs)
@@ -56,6 +57,7 @@ Flags:
 Create a JSON, YAML, or TOML config in `/opt/circonus/etc/circonus-logwatch.(json|yaml|toml)`. Or, use environment variables and/or command line parameters.
 
 YAML with a StatsD destination (send metrics to local circonus-agent statsd listener)
+
 ```yaml
 ---
 app_stat_port: "33284"
@@ -113,6 +115,7 @@ JSON with a Check destination (send metrics directly to a Circonus check, a chec
 ```
 
 TOML with an Agent destination (send metrics to local circonus-agent)
+
 ```toml
 app_stat_port = "33284"
 debug = false
@@ -148,6 +151,7 @@ Create one config (JSON, YAML, or TOML) in `--log-conf-dir` for each distinct lo
 1. `metrics` a list of:
     1. `match` regular expression to identify lines and optionally extract named subexpressions for value and metric name
     1. `name` a static string to use as the metric name or a template for naming the metric if named subexpressions were used in match regex
+    1. `tags` comma separated list of k:v pairs, templating can be used accessing named subexpressions (e.g. `foo:bar,yabba:dabba` or `foo:{{.id}},bar:baz`)
     1. `type` what type of metric (all numbers are 64bit)
         * `c` counter int
         * `g` gauge int or float
@@ -156,11 +160,12 @@ Create one config (JSON, YAML, or TOML) in `--log-conf-dir` for each distinct lo
         * `s` set (ala statsd set metrics) unique string to count
         * `t` text string
 
-> NOTE:
-> * any metric which does not have a `type` will be treated as a counter.
-> * any metric which does not have a subexpression named '*Value*' (case insensitive) will be treated as a counter.
-> * named subexpressions can be used in the name template with the following syntax `{{.id}}` where `id` is the name given to a named subexpression in the match regex
-> * metric names will be prefixed with the log `id`
+### Log configuration notes
+
+* any metric which does not have a `type` will be treated as a counter.
+* any metric which does not have a subexpression named '*Value*' (case insensitive) will be treated as a counter.
+* named subexpressions can be used in the name template and tag list with the following syntax `{{.id}}` where `id` is the name given to a named subexpression in the match regex
+* metrics will have a stream tag added for the log `id` (e.g. for a log with an id of "foo" the tag would be `log_id:foo`)
 
 ## Manual build
 

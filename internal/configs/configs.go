@@ -30,10 +30,12 @@ type Metric struct {
 	Matcher    *regexp.Regexp
 	MatchParts []string
 	Namer      *template.Template
+	Tagger     *template.Template
 	ValueKey   string
 	Match      string `json:"match" yaml:"match" toml:"match"`
 	Name       string `json:"name" yaml:"name" toml:"name"`
 	Type       string `json:"type" yaml:"type" toml:"type"`
+	Tags       string `json:"tags" toml:"tags" yaml:"tags"`
 }
 
 // Config defines a log to watch
@@ -183,41 +185,72 @@ func validMetricRules(logID string, logger zerolog.Logger, rules []*Metric) bool
 			}
 		}
 
-		// template does not contain template interpolation code, treat it as a literal metric name
-		if !strings.Contains(rule.Name, "{{.") {
-			continue
+		// name contains template interpolation code
+		if strings.Contains(rule.Name, "{{.") {
+			if len(rule.MatchParts) < 2 {
+				logger.Warn().
+					Str("log_id", logID).
+					Int("id_id", ruleID).
+					Str("match", rule.Match).
+					Str("name", rule.Name).
+					Msg("'name' expects matches, match has no named subexpressions, skipping config")
+				return false
+			}
+			templateID := fmt.Sprintf("%s:M%d-name", logID, ruleID)
+			namer, err := template.New(templateID).Parse(rule.Name)
+			if err != nil {
+				logger.Warn().
+					Err(err).
+					Str("log_id", logID).
+					Int("id_id", ruleID).
+					Str("name", rule.Name).
+					Msg("name template parse failed, skipping config")
+				return false
+			}
+			if namer == nil {
+				logger.Warn().
+					Str("log_id", logID).
+					Int("id_id", ruleID).
+					Str("name", rule.Name).
+					Msg("name template parse resulted in nil value, skipping config")
+				return false
+			}
+			rule.Namer = namer
 		}
 
-		if len(rule.MatchParts) < 2 {
-			logger.Warn().
-				Str("log_id", logID).
-				Int("id_id", ruleID).
-				Str("match", rule.Match).
-				Str("name", rule.Name).
-				Msg("'name' expects matches, match has no named subexpressions, skipping config")
-			return false
+		// tags contains template interpolation code
+		if strings.Contains(rule.Tags, "{{.") {
+			if len(rule.MatchParts) < 2 {
+				logger.Warn().
+					Str("log_id", logID).
+					Int("id_id", ruleID).
+					Str("match", rule.Match).
+					Str("tags", rule.Tags).
+					Msg("'tags' expects matches, match has no named subexpressions, skipping config")
+				return false
+			}
+			templateID := fmt.Sprintf("%s:M%d-tags", logID, ruleID)
+			tagger, err := template.New(templateID).Parse(rule.Tags)
+			if err != nil {
+				logger.Warn().
+					Err(err).
+					Str("log_id", logID).
+					Int("id_id", ruleID).
+					Str("tags", rule.Tags).
+					Msg("tags template parse failed, skipping config")
+				return false
+			}
+			if tagger == nil {
+				logger.Warn().
+					Str("log_id", logID).
+					Int("id_id", ruleID).
+					Str("tags", rule.Tags).
+					Msg("tags template parse resulted in nil value, skipping config")
+				return false
+			}
+			rule.Tagger = tagger
 		}
 
-		templateID := fmt.Sprintf("%s:M%d", logID, ruleID)
-		namer, err := template.New(templateID).Parse(rule.Name)
-		if err != nil {
-			logger.Warn().
-				Err(err).
-				Str("log_id", logID).
-				Int("id_id", ruleID).
-				Str("name", rule.Name).
-				Msg("name template parse failed, skipping config")
-			return false
-		}
-		if namer == nil {
-			logger.Warn().
-				Str("log_id", logID).
-				Int("id_id", ruleID).
-				Str("name", rule.Name).
-				Msg("name template parse resulted in nil value, skipping config")
-			return false
-		}
-		rule.Namer = namer
 	}
 
 	return true

@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	stdlog "log"
+	"strings"
 	"time"
 
 	cgm "github.com/circonus-labs/circonus-gometrics/v3"
@@ -41,10 +42,14 @@ func New() (*Circonus, error) {
 		if sURL == "" {
 			return nil, errors.Errorf("invalid agent url defined (empty)")
 		}
-		cmc := &cgm.Config{
-			Debug: viper.GetBool(config.KeyDebugCGM),
-			Log:   stdlog.New(log.With().Str("pkg", "dest-agent").Logger(), "", 0),
+
+		cmc := &cgm.Config{}
+		if viper.GetBool(config.KeyDebugCGM) {
+			cmc.Debug = true
+			cmc.Log = stdlog.New(log.With().Str("pkg", "dest-check").Logger(), "", 0)
 		}
+
+		cmc.CheckManager.Check.SubmissionURL = sURL
 
 		interval := viper.GetString(config.KeyDestCfgAgentInterval)
 		if interval == "" {
@@ -56,7 +61,6 @@ func New() (*Circonus, error) {
 		}
 		cmc.Interval = interval
 
-		cmc.CheckManager.Check.SubmissionURL = sURL
 		c, err := cgm.New(cmc)
 		if err != nil {
 			return nil, errors.Wrap(err, "creating client for destination 'agent'")
@@ -64,9 +68,10 @@ func New() (*Circonus, error) {
 		client = c
 
 	case "check":
-		cmc := &cgm.Config{
-			Debug: viper.GetBool(config.KeyDebugCGM),
-			Log:   stdlog.New(log.With().Str("pkg", "dest-check").Logger(), "", 0),
+		cmc := &cgm.Config{}
+		if viper.GetBool(config.KeyDebugCGM) {
+			cmc.Debug = true
+			cmc.Log = stdlog.New(log.With().Str("pkg", "dest-check").Logger(), "", 0)
 		}
 		cmc.CheckManager.API.TokenKey = viper.GetString(config.KeyAPITokenKey)
 		if viper.GetString(config.KeyAPITokenApp) != "" {
@@ -123,9 +128,29 @@ func (c *Circonus) Stop() error {
 	return nil
 }
 
+// convert []string to cgm.Tags
+func (c *Circonus) tagsToCgmTags(tags []string) cgm.Tags {
+	var tagList cgm.Tags
+	for _, tag := range tags {
+		tp := strings.SplitN(tag, ":", 2)
+		if len(tp) != 2 {
+			c.logger.Warn().Str("tag", tag).Msg("invalid tag")
+			continue
+		}
+		tagList = append(tagList, cgm.Tag{Category: tp[0], Value: tp[1]})
+	}
+	return tagList
+}
+
 // SetGaugeValue sends a gauge metric
 func (c *Circonus) SetGaugeValue(metric string, value interface{}) error { // gauge (ints or floats)
 	c.client.Gauge(metric, value)
+	return nil
+}
+
+// SetGaugeValueWithTags sends a gauge metric with tags
+func (c *Circonus) SetGaugeValueWithTags(metric string, tags []string, value interface{}) error { // gauge (ints or floats)
+	c.client.GaugeWithTags(metric, c.tagsToCgmTags(tags), value)
 	return nil
 }
 
@@ -134,9 +159,20 @@ func (c *Circonus) SetTimingValue(metric string, value float64) error { // histo
 	return c.SetHistogramValue(metric, value)
 }
 
+// SetTimingValueWithTags sends a timing metric with tags
+func (c *Circonus) SetTimingValueWithTags(metric string, tags []string, value float64) error { // histogram
+	return c.SetHistogramValueWithTags(metric, tags, value)
+}
+
 // SetHistogramValue sends a histogram metric
 func (c *Circonus) SetHistogramValue(metric string, value float64) error { // histogram
 	c.client.RecordValue(metric, value)
+	return nil
+}
+
+// SetHistogramValueWithTags sends a histogram metric with tags
+func (c *Circonus) SetHistogramValueWithTags(metric string, tags []string, value float64) error { // histogram
+	c.client.RecordValueWithTags(metric, c.tagsToCgmTags(tags), value)
 	return nil
 }
 
@@ -145,9 +181,20 @@ func (c *Circonus) IncrementCounter(metric string) error { // counter (monotonic
 	return c.IncrementCounterByValue(metric, 1)
 }
 
+// IncrementCounterWithTags sends a counter increment with tags
+func (c *Circonus) IncrementCounterWithTags(metric string, tags []string) error { // counter (monotonically increasing value)
+	return c.IncrementCounterByValueWithTags(metric, tags, 1)
+}
+
 // IncrementCounterByValue sends value to add to counter
 func (c *Circonus) IncrementCounterByValue(metric string, value uint64) error { // counter (monotonically increasing value)
 	c.client.IncrementByValue(metric, value)
+	return nil
+}
+
+// IncrementCounterByValueWithTags sends value to add to counter with tags
+func (c *Circonus) IncrementCounterByValueWithTags(metric string, tags []string, value uint64) error { // counter (monotonically increasing value)
+	c.client.IncrementByValueWithTags(metric, c.tagsToCgmTags(tags), value)
 	return nil
 }
 
@@ -157,8 +204,20 @@ func (c *Circonus) AddSetValue(metric string, value string) error { // set metri
 	return nil
 }
 
+// AddSetValueWithTags sends a unique value to the set metric with tags
+func (c *Circonus) AddSetValueWithTags(metric string, tags []string, value string) error { // set metric (ala statsd, counts unique values)
+	_ = c.IncrementCounterWithTags(fmt.Sprintf("%s`%s", metric, value), tags)
+	return nil
+}
+
 // SetTextValue sends a text metric
 func (c *Circonus) SetTextValue(metric string, value string) error { // text metric
 	c.client.SetTextValue(metric, value)
+	return nil
+}
+
+// SetTextValueWithTags sends a text metric with tags
+func (c *Circonus) SetTextValueWithTags(metric string, tags []string, value string) error { // text metric
+	c.client.SetTextValueWithTags(metric, c.tagsToCgmTags(tags), value)
 	return nil
 }

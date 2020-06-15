@@ -19,8 +19,11 @@ import (
 	"github.com/circonus-labs/circonus-logwatch/internal/config"
 	"github.com/circonus-labs/circonus-logwatch/internal/configs"
 	"github.com/circonus-labs/circonus-logwatch/internal/metrics"
-	"github.com/hpcloud/tail"
+
+	// "github.com/hpcloud/tail"
 	"github.com/maier/go-appstats"
+
+	"github.com/nxadm/tail"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -121,6 +124,7 @@ func (w *Watcher) process() error {
 	cfg := tail.Config{
 		Follow:    true,
 		ReOpen:    true,
+		Poll:      true,
 		MustExist: false,
 		Location: &tail.SeekInfo{
 			Offset: 0,
@@ -203,7 +207,8 @@ START_TAIL:
 					}
 					w.metricLines <- ml
 					// NOTE: do not 'break' on match, a single log
-					//       line may generate multiple metrics, matching multiple config rules.
+					//       line may generate multiple metrics by
+					//       matching multiple config rules.
 				}
 			}
 		}

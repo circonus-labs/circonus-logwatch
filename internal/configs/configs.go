@@ -103,7 +103,7 @@ func Load() ([]*Config, error) {
 				Err(err).
 				Str("log", logcfg.LogFile).
 				Msg("access")
-			continue
+			// continue
 		}
 
 		if logcfg.ID == "" { // ID not explicitly set, use the base of the config file name

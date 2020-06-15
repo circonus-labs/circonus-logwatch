@@ -1,3 +1,10 @@
+# v1.0.0-beta.2
+
+* fix: do not skip config if log file not currently available let tail wait for the log
+* fix: do not exit if only one config with a missing log file
+* upd: switch to nxadm/tail updated tail (hpcloud/tail is not currently being updated/maintained)
+* upd: switch to tail poll for better handling of deleted log files
+
 # v1.0.0-beta.1
 
 * UPDATE - stream tag only release

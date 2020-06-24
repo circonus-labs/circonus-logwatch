@@ -226,9 +226,10 @@ func destConf() error {
 			return errors.Wrapf(err, "destination %s, port %s", dest, addr)
 		}
 
-		if err := testPort("tcp", a.String()); err != nil {
-			return errors.Wrapf(err, "destination %s, port %s", dest, addr)
-		}
+		// let cgm handle retrying agent destination
+		// if err := testPort("tcp", a.String()); err != nil {
+		// 	return errors.Wrapf(err, "destination %s, port %s", dest, addr)
+		// }
 
 		viper.Set(KeyDestAgentURL, fmt.Sprintf("http://%s/write/%s", a.String(), id))
 

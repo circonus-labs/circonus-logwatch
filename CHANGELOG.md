@@ -1,3 +1,9 @@
+# v1.0.0-beta.3
+
+* fix: let cgm handle retrying check/agent destinations rather than testing the port
+* upd: version information in release package
+* upd: skip README.md in `log.d`
+
 # v1.0.0-beta.2
 
 * fix: do not skip config if log file not currently available let tail wait for the log

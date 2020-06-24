@@ -28,7 +28,15 @@ builds:
             -
                 goarch: 386
 
-        ldflags: -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.tag={{.Tag}}
+        ldflags:
+            - -s
+            - -w
+            - -extldflags "-static"
+            - -X github.com/circonus-labs/circonus-logwatch/internal/release.VERSION={{.Version}}
+            - -X github.com/circonus-labs/circonus-logwatch/internal/release.COMMIT={{.ShortCommit}}
+            - -X github.com/circonus-labs/circonus-logwatch/internal/release.DATE={{.Date}}
+            - -X github.com/circonus-labs/circonus-logwatch/internal/release.TAG={{.Tag}}
+
 
 archives:
     - 

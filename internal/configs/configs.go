@@ -78,10 +78,12 @@ func Load() ([]*Config, error) {
 		cfgFile := path.Join(logConfDir, entry.Name())
 		cfgType := filepath.Ext(cfgFile)
 		if !supportedConfExts.MatchString(cfgType) {
-			logger.Warn().
-				Str("type", cfgType).
-				Str("file", cfgFile).
-				Msg("unsupported config type, ignoring")
+			if entry.Name() != "README.md" {
+				logger.Warn().
+					Str("type", cfgType).
+					Str("file", cfgFile).
+					Msg("unsupported config type, ignoring")
+			}
 			continue
 		}
 

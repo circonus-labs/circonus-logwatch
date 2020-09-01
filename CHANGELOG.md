@@ -1,3 +1,10 @@
+# v1.0.0
+
+* upd: clarify processing metric vs sending log message
+* upd: go1.15
+* upd: cgm and viper dependencies
+* fix: exec path in service config, add `sbin`
+
 # v1.0.0-beta.3
 
 * fix: let cgm handle retrying check/agent destinations rather than testing the port

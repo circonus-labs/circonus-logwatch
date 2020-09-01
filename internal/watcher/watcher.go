@@ -295,7 +295,7 @@ func (w *Watcher) save() error {
 		case m := <-w.metrics:
 			w.logger.Debug().
 				Str("metric", fmt.Sprintf("%#v", m)).
-				Msg("sending")
+				Msg("processing")
 
 			switch m.Type {
 			case "c":

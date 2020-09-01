@@ -89,7 +89,10 @@ func New() (*Circonus, error) {
 			if !cp.AppendCertsFromPEM(cert) {
 				return nil, errors.New("unable to add API CA Certificate to x509 cert pool")
 			}
-			cmc.CheckManager.API.TLSConfig = &tls.Config{RootCAs: cp}
+			cmc.CheckManager.API.TLSConfig = &tls.Config{
+				RootCAs:    cp,
+				MinVersion: tls.VersionTLS12,
+			}
 		}
 		if viper.GetString(config.KeyDestCfgCID) != "" {
 			cmc.CheckManager.Check.ID = viper.GetString(config.KeyDestCfgCID)

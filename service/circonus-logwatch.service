@@ -4,7 +4,7 @@ Documentation=http://github.com/circonus-labs/circonus-logwatch
 After=network.target
 
 [Service]
-ExecStart=/opt/circonus/logwatch/circonus-logwatch
+ExecStart=/opt/circonus/logwatch/sbin/circonus-logwatch
 Restart=always
 User=nobody
 

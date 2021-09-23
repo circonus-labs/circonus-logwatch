@@ -7,7 +7,7 @@ require (
 	github.com/circonus-labs/circonus-gometrics/v3 v3.1.0
 	// github.com/hpcloud/tail v1.0.0
 	github.com/maier/go-appstats v0.2.0
-	github.com/nxadm/tail v1.4.4
+	github.com/nxadm/tail v1.4.8
 	github.com/pelletier/go-toml v1.8.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.19.0

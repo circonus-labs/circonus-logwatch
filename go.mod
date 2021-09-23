@@ -8,7 +8,7 @@ require (
 	// github.com/hpcloud/tail v1.0.0
 	github.com/maier/go-appstats v0.2.0
 	github.com/nxadm/tail v1.4.4
-	github.com/pelletier/go-toml v1.8.0
+	github.com/pelletier/go-toml v1.9.4
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.19.0
 	github.com/spf13/afero v1.3.4 // indirect

@@ -14,7 +14,7 @@
 //   t - text
 package metrics
 
-// Destination defines the interface required by the metric destination
+// Destination defines the interface required by the metric destination.
 type Destination interface {
 	AddSetValue(string, string) error                               // type 's'  - set metric (ala statsd, counts unique values)
 	AddSetValueWithTags(string, []string, string) error             // type 's'  - set metric (ala statsd, counts unique values) with tags

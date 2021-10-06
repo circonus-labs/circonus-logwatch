@@ -12,7 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// LogOnly defines logging metrics only destination
+// LogOnly defines logging metrics only destination.
 type LogOnly struct {
 	logger zerolog.Logger
 }
@@ -22,7 +22,7 @@ var (
 	once   sync.Once
 )
 
-// New creates a new log only destination
+// New creates a new log only destination.
 func New() (*LogOnly, error) {
 
 	once.Do(func() {
@@ -34,97 +34,97 @@ func New() (*LogOnly, error) {
 	return client, nil
 }
 
-// Start is a NOP for log only destination
+// Start is a NOP for log only destination.
 func (c *LogOnly) Start() error {
 	// NOP
 	return nil
 }
 
-// Stop is a NOP for log only destination
+// Stop is a NOP for log only destination.
 func (c *LogOnly) Stop() error {
 	// NOP
 	return nil
 }
 
-// IncrementCounter increments a counter - type 'c'
+// IncrementCounter increments a counter - type 'c'.
 func (c *LogOnly) IncrementCounter(metric string) error { // counter (monotonically increasing value)
 	c.logger.Info().Str("name", metric).Interface("value", 1).Msg("metric")
 	return nil
 }
 
-// IncrementCounterWithTags increments a counter - type 'c'
+// IncrementCounterWithTags increments a counter - type 'c'.
 func (c *LogOnly) IncrementCounterWithTags(metric string, tags []string) error { // counter (monotonically increasing value)
 	c.logger.Info().Str("name", metric).Strs("tags", tags).Interface("value", 1).Msg("metric")
 	return nil
 }
 
-// IncrementCounterByValue sends value to add to counter - type 'c'
+// IncrementCounterByValue sends value to add to counter - type 'c'.
 func (c *LogOnly) IncrementCounterByValue(metric string, value uint64) error { // counter (monotonically increasing value)
 	c.logger.Info().Str("name", metric).Interface("value", value).Msg("metric")
 	return nil
 }
 
-// IncrementCounterByValueWithTags sends value to add to counter - type 'c'
+// IncrementCounterByValueWithTags sends value to add to counter - type 'c'.
 func (c *LogOnly) IncrementCounterByValueWithTags(metric string, tags []string, value uint64) error { // counter (monotonically increasing value)
 	c.logger.Info().Str("name", metric).Strs("tags", tags).Interface("value", value).Msg("metric")
 	return nil
 }
 
-// SetGaugeValue sets a gauge metric to the specified value - type 'g'
+// SetGaugeValue sets a gauge metric to the specified value - type 'g'.
 func (c *LogOnly) SetGaugeValue(metric string, value interface{}) error { // gauge (ints or floats)
 	c.logger.Info().Str("name", metric).Interface("value", value).Msg("metric")
 	return nil
 }
 
-// SetGaugeValueWithTags sets a gauge metric to the specified value - type 'g'
+// SetGaugeValueWithTags sets a gauge metric to the specified value - type 'g'.
 func (c *LogOnly) SetGaugeValueWithTags(metric string, tags []string, value interface{}) error { // gauge (ints or floats)
 	c.logger.Info().Str("name", metric).Strs("tags", tags).Interface("value", value).Msg("metric")
 	return nil
 }
 
-// SetHistogramValue sets a histogram metric to the specified value - type 'h'
+// SetHistogramValue sets a histogram metric to the specified value - type 'h'.
 func (c *LogOnly) SetHistogramValue(metric string, value float64) error { // histogram
 	c.logger.Info().Str("name", metric).Interface("value", value).Msg("metric")
 	return nil
 }
 
-// SetHistogramValueWithTags sets a histogram metric to the specified value - type 'h'
+// SetHistogramValueWithTags sets a histogram metric to the specified value - type 'h'.
 func (c *LogOnly) SetHistogramValueWithTags(metric string, tags []string, value float64) error { // histogram
 	c.logger.Info().Str("name", metric).Strs("tags", tags).Interface("value", value).Msg("metric")
 	return nil
 }
 
-// SetTimingValue sets a timing metric to the specified value - type 'ms'
+// SetTimingValue sets a timing metric to the specified value - type 'ms'.
 func (c *LogOnly) SetTimingValue(metric string, value float64) error { // histogram
 	c.logger.Info().Str("name", metric).Interface("value", value).Msg("metric")
 	return nil
 }
 
-// SetTimingValueWithTags sets a timing metric to the specified value - type 'ms'
+// SetTimingValueWithTags sets a timing metric to the specified value - type 'ms'.
 func (c *LogOnly) SetTimingValueWithTags(metric string, tags []string, value float64) error { // histogram
 	c.logger.Info().Str("name", metric).Strs("tags", tags).Interface("value", value).Msg("metric")
 	return nil
 }
 
-// AddSetValue adds (or increments the counter) for the specified unique value - type 's'
+// AddSetValue adds (or increments the counter) for the specified unique value - type 's'.
 func (c *LogOnly) AddSetValue(metric, value string) error { // set metric (ala statsd, counts unique values)
 	c.logger.Info().Str("name", metric).Interface("value", value).Msg("metric")
 	return nil
 }
 
-// AddSetValueWithTags adds (or increments the counter) for the specified unique value - type 's'
+// AddSetValueWithTags adds (or increments the counter) for the specified unique value - type 's'.
 func (c *LogOnly) AddSetValueWithTags(metric string, tags []string, value string) error { // set metric (ala statsd, counts unique values)
 	c.logger.Info().Str("name", metric).Strs("tags", tags).Interface("value", value).Msg("metric")
 	return nil
 }
 
-// SetTextValue sets a text metric to the specified value - type 't'
+// SetTextValue sets a text metric to the specified value - type 't'.
 func (c *LogOnly) SetTextValue(metric, value string) error { // text metric
 	c.logger.Info().Str("name", metric).Interface("value", value).Msg("metric")
 	return nil
 }
 
-// SetTextValueWithTags sets a text metric to the specified value - type 't'
+// SetTextValueWithTags sets a text metric to the specified value - type 't'.
 func (c *LogOnly) SetTextValueWithTags(metric string, tags []string, value string) error { // text metric
 	c.logger.Info().Str("name", metric).Strs("tags", tags).Interface("value", value).Msg("metric")
 	return nil

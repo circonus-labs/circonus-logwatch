@@ -15,7 +15,6 @@ import (
 	"github.com/circonus-labs/circonus-logwatch/internal/config"
 	"github.com/circonus-labs/circonus-logwatch/internal/config/defaults"
 	"github.com/circonus-labs/circonus-logwatch/internal/release"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -24,7 +23,7 @@ import (
 
 var cfgFile string
 
-// RootCmd represents the base command when called without any subcommands
+// RootCmd represents the base command when called without any subcommands.
 var RootCmd = &cobra.Command{
 	Use:   release.NAME,
 	Short: "A small utility to send metrics extracted from log files to Circonus.",
@@ -475,7 +474,7 @@ func initConfig() {
 	}
 }
 
-// initLogging initializes zerolog
+// initLogging initializes zerolog.
 func initLogging(cmd *cobra.Command, args []string) error {
 	//
 	// Enable formatted output
@@ -513,7 +512,7 @@ func initLogging(cmd *cobra.Command, args []string) error {
 		case "disabled":
 			zerolog.SetGlobalLevel(zerolog.Disabled)
 		default:
-			return errors.Errorf("Unknown log level (%s)", level)
+			return fmt.Errorf("Unknown log level (%s)", level) //nolint:goerr113
 		}
 	}
 

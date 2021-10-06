@@ -7,7 +7,9 @@ package agent
 
 import (
 	"context"
+	"errors"
 	"expvar"
+	"fmt"
 	"net"
 	"net/http"
 	"os"
@@ -22,28 +24,27 @@ import (
 	"github.com/circonus-labs/circonus-logwatch/internal/metrics/statsd"
 	"github.com/circonus-labs/circonus-logwatch/internal/release"
 	"github.com/circonus-labs/circonus-logwatch/internal/watcher"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"golang.org/x/sync/errgroup"
 )
 
-// Agent holds the main circonus-logwatch process
+// Agent holds the main circonus-logwatch process.
 type Agent struct {
-	group       *errgroup.Group
 	groupCtx    context.Context
-	groupCancel context.CancelFunc
-	watchers    []*watcher.Watcher
-	signalCh    chan os.Signal
 	destClient  metrics.Destination
+	group       *errgroup.Group
+	groupCancel context.CancelFunc
+	signalCh    chan os.Signal
 	svrHTTP     *http.Server
+	watchers    []*watcher.Watcher
 }
 
 func init() {
 	http.Handle("/stats", expvar.Handler())
 }
 
-// New returns a new agent instance
+// New returns a new agent instance.
 func New() (*Agent, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	g, gctx := errgroup.WithContext(ctx)
@@ -59,7 +60,7 @@ func New() (*Agent, error) {
 	// validate the configuration
 	//
 	if err := config.Validate(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("config validate: %w", err)
 	}
 
 	dest := viper.GetString(config.KeyDestType)
@@ -88,7 +89,7 @@ func New() (*Agent, error) {
 		a.destClient = d
 
 	default:
-		return nil, errors.Errorf("unknown metric destination (%s)", dest)
+		return nil, fmt.Errorf("unknown metric destination (%s)", dest)
 	}
 
 	cfgs, err := configs.Load()
@@ -116,7 +117,7 @@ func New() (*Agent, error) {
 	return &a, nil
 }
 
-// Start the agent
+// Start the agent.
 func (a *Agent) Start() error {
 	a.group.Go(a.handleSignals)
 	for _, w := range a.watchers {
@@ -132,7 +133,7 @@ func (a *Agent) Start() error {
 	return a.group.Wait()
 }
 
-// Stop cleans up and shuts down the Agent
+// Stop cleans up and shuts down the Agent.
 func (a *Agent) Stop() {
 	log.Debug().
 		Int("pid", os.Getpid()).
@@ -153,14 +154,14 @@ func (a *Agent) Stop() {
 func (a *Agent) serveMetrics() error {
 	log.Debug().Str("url", "http://"+a.svrHTTP.Addr+"/stats").Msg("app stats listener")
 	if err := a.svrHTTP.ListenAndServe(); err != nil {
-		if err != http.ErrServerClosed {
-			return errors.Wrap(err, "HTTP server")
+		if !errors.Is(err, http.ErrServerClosed) {
+			return fmt.Errorf("http server: %w", err)
 		}
 	}
 	return nil
 }
 
-// stopSignalHandler disables the signal handler
+// stopSignalHandler disables the signal handler.
 func (a *Agent) stopSignalHandler() {
 	signal.Stop(a.signalCh)
 	signal.Reset() // so a second ctrl-c will force a kill

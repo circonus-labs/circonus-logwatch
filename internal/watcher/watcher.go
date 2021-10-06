@@ -8,6 +8,7 @@ package watcher
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -19,12 +20,8 @@ import (
 	"github.com/circonus-labs/circonus-logwatch/internal/config"
 	"github.com/circonus-labs/circonus-logwatch/internal/configs"
 	"github.com/circonus-labs/circonus-logwatch/internal/metrics"
-
-	// "github.com/hpcloud/tail"
 	"github.com/maier/go-appstats"
-
 	"github.com/nxadm/tail"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -34,30 +31,30 @@ import (
 type metric struct {
 	Name  string
 	Type  string
-	Tags  []string
 	Value string
+	Tags  []string
 }
 
 type metricLine struct {
-	line     string
 	matches  *map[string]string
+	line     string
 	metricID int
 }
 
-// Watcher defines a new log watcher
+// Watcher defines a new log watcher.
 type Watcher struct {
 	ctx              context.Context
+	groupCtx         context.Context
+	dest             metrics.Destination
 	ctxCancel        context.CancelFunc
 	group            *errgroup.Group
-	groupCtx         context.Context
 	cfg              *configs.Config
-	trace            bool
-	logger           zerolog.Logger
 	metricLines      chan metricLine
 	metrics          chan metric
-	dest             metrics.Destination
-	statTotalLines   string
 	statMatchedLines string
+	statTotalLines   string
+	logger           zerolog.Logger
+	trace            bool
 }
 
 const (
@@ -65,7 +62,7 @@ const (
 	metricQueueSize     = 1000
 )
 
-// New creates a new watcher instance
+// New creates a new watcher instance.
 func New(ctx context.Context, metricDest metrics.Destination, logConfig *configs.Config) (*Watcher, error) {
 	if metricDest == nil {
 		return nil, errors.New("invalid metric destination (nil)")
@@ -96,7 +93,7 @@ func New(ctx context.Context, metricDest metrics.Destination, logConfig *configs
 	return &w, nil
 }
 
-// Start the watcher
+// Start the watcher.
 func (w *Watcher) Start() error {
 	w.group.Go(w.save)
 	w.group.Go(w.parse)
@@ -113,13 +110,13 @@ func (w *Watcher) Start() error {
 	return w.group.Wait()
 }
 
-// Stop the watcher
+// Stop the watcher.
 func (w *Watcher) Stop() error {
 	w.ctxCancel()
 	return w.groupCtx.Err()
 }
 
-// process opens log and checks log lines for matches
+// process opens log and checks log lines for matches.
 func (w *Watcher) process() error {
 	cfg := tail.Config{
 		Follow:    true,
@@ -215,7 +212,7 @@ START_TAIL:
 	}
 }
 
-// parse log line to extract metric
+// parse log line to extract metric.
 func (w *Watcher) parse() error {
 	for {
 		select {
@@ -285,7 +282,7 @@ func (w *Watcher) parse() error {
 	}
 }
 
-// save metrics to configured destination
+// save metrics to configured destination.
 func (w *Watcher) save() error {
 	for {
 		select {

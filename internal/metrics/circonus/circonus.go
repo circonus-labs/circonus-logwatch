@@ -8,6 +8,7 @@ package circonus
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	stdlog "log"
@@ -17,19 +18,18 @@ import (
 	cgm "github.com/circonus-labs/circonus-gometrics/v3"
 	"github.com/circonus-labs/circonus-logwatch/internal/config"
 	"github.com/circonus-labs/circonus-logwatch/internal/config/defaults"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
 
-// Circonus defines an instance of the circonus metrics destination
+// Circonus defines an instance of the circonus metrics destination.
 type Circonus struct {
-	logger zerolog.Logger
 	client *cgm.CirconusMetrics
+	logger zerolog.Logger
 }
 
-// New returns a new instance of the circonus metrics destination
+// New returns a new instance of the circonus metrics destination.
 func New() (*Circonus, error) {
 	var client *cgm.CirconusMetrics
 
@@ -40,7 +40,7 @@ func New() (*Circonus, error) {
 	case "agent":
 		sURL := viper.GetString(config.KeyDestAgentURL)
 		if sURL == "" {
-			return nil, errors.Errorf("invalid agent url defined (empty)")
+			return nil, errors.New("invalid agent url defined (empty)")
 		}
 
 		cmc := &cgm.Config{}
@@ -57,13 +57,13 @@ func New() (*Circonus, error) {
 		}
 		_, err := time.ParseDuration(interval)
 		if err != nil {
-			return nil, errors.Wrap(err, "parsing destination interval")
+			return nil, fmt.Errorf("parsing destination interval: %w", err)
 		}
 		cmc.Interval = interval
 
 		c, err := cgm.New(cmc)
 		if err != nil {
-			return nil, errors.Wrap(err, "creating client for destination 'agent'")
+			return nil, fmt.Errorf("creating client for destination 'agent': %w", err)
 		}
 		client = c
 
@@ -83,7 +83,7 @@ func New() (*Circonus, error) {
 		if file := viper.GetString(config.KeyAPICAFile); file != "" {
 			cert, err := ioutil.ReadFile(file)
 			if err != nil {
-				return nil, errors.Wrapf(err, "reading specified API CA file (%s)", file)
+				return nil, fmt.Errorf("reading specified API CA file (%s): %w", file, err)
 			}
 			cp := x509.NewCertPool()
 			if !cp.AppendCertsFromPEM(cert) {
@@ -108,30 +108,30 @@ func New() (*Circonus, error) {
 		}
 		c, err := cgm.New(cmc)
 		if err != nil {
-			return nil, errors.Wrap(err, "creating client for destination 'check'")
+			return nil, fmt.Errorf("creating client for destination 'check': %w", err)
 		}
 		client = c
 
 	default:
-		return nil, errors.Errorf("unknown destination type for circonus client %s", dest)
+		return nil, fmt.Errorf("unknown destination type for circonus client %s", dest)
 	}
 
 	return &Circonus{client: client, logger: logger}, nil
 }
 
-// Start NOOP cgm starts as it is initialized
+// Start NOOP cgm starts as it is initialized.
 func (c *Circonus) Start() error {
 	// noop
 	return nil
 }
 
-// Stop flushes any outstanding metrics
+// Stop flushes any outstanding metrics.
 func (c *Circonus) Stop() error {
 	c.client.Flush()
 	return nil
 }
 
-// convert []string to cgm.Tags
+// convert []string to cgm.Tags.
 func (c *Circonus) tagsToCgmTags(tags []string) cgm.Tags {
 	var tagList cgm.Tags
 	for _, tag := range tags {
@@ -145,81 +145,81 @@ func (c *Circonus) tagsToCgmTags(tags []string) cgm.Tags {
 	return tagList
 }
 
-// SetGaugeValue sends a gauge metric
+// SetGaugeValue sends a gauge metric.
 func (c *Circonus) SetGaugeValue(metric string, value interface{}) error { // gauge (ints or floats)
 	c.client.Gauge(metric, value)
 	return nil
 }
 
-// SetGaugeValueWithTags sends a gauge metric with tags
+// SetGaugeValueWithTags sends a gauge metric with tags.
 func (c *Circonus) SetGaugeValueWithTags(metric string, tags []string, value interface{}) error { // gauge (ints or floats)
 	c.client.GaugeWithTags(metric, c.tagsToCgmTags(tags), value)
 	return nil
 }
 
-// SetTimingValue sends a timing metric
+// SetTimingValue sends a timing metric.
 func (c *Circonus) SetTimingValue(metric string, value float64) error { // histogram
 	return c.SetHistogramValue(metric, value)
 }
 
-// SetTimingValueWithTags sends a timing metric with tags
+// SetTimingValueWithTags sends a timing metric with tags.
 func (c *Circonus) SetTimingValueWithTags(metric string, tags []string, value float64) error { // histogram
 	return c.SetHistogramValueWithTags(metric, tags, value)
 }
 
-// SetHistogramValue sends a histogram metric
+// SetHistogramValue sends a histogram metric.
 func (c *Circonus) SetHistogramValue(metric string, value float64) error { // histogram
 	c.client.RecordValue(metric, value)
 	return nil
 }
 
-// SetHistogramValueWithTags sends a histogram metric with tags
+// SetHistogramValueWithTags sends a histogram metric with tags.
 func (c *Circonus) SetHistogramValueWithTags(metric string, tags []string, value float64) error { // histogram
 	c.client.RecordValueWithTags(metric, c.tagsToCgmTags(tags), value)
 	return nil
 }
 
-// IncrementCounter sends a counter increment
+// IncrementCounter sends a counter increment.
 func (c *Circonus) IncrementCounter(metric string) error { // counter (monotonically increasing value)
 	return c.IncrementCounterByValue(metric, 1)
 }
 
-// IncrementCounterWithTags sends a counter increment with tags
+// IncrementCounterWithTags sends a counter increment with tags.
 func (c *Circonus) IncrementCounterWithTags(metric string, tags []string) error { // counter (monotonically increasing value)
 	return c.IncrementCounterByValueWithTags(metric, tags, 1)
 }
 
-// IncrementCounterByValue sends value to add to counter
+// IncrementCounterByValue sends value to add to counter.
 func (c *Circonus) IncrementCounterByValue(metric string, value uint64) error { // counter (monotonically increasing value)
 	c.client.IncrementByValue(metric, value)
 	return nil
 }
 
-// IncrementCounterByValueWithTags sends value to add to counter with tags
+// IncrementCounterByValueWithTags sends value to add to counter with tags.
 func (c *Circonus) IncrementCounterByValueWithTags(metric string, tags []string, value uint64) error { // counter (monotonically increasing value)
 	c.client.IncrementByValueWithTags(metric, c.tagsToCgmTags(tags), value)
 	return nil
 }
 
-// AddSetValue sends a unique value to the set metric
+// AddSetValue sends a unique value to the set metric.
 func (c *Circonus) AddSetValue(metric string, value string) error { // set metric (ala statsd, counts unique values)
 	_ = c.IncrementCounter(fmt.Sprintf("%s`%s", metric, value))
 	return nil
 }
 
-// AddSetValueWithTags sends a unique value to the set metric with tags
+// AddSetValueWithTags sends a unique value to the set metric with tags.
 func (c *Circonus) AddSetValueWithTags(metric string, tags []string, value string) error { // set metric (ala statsd, counts unique values)
 	_ = c.IncrementCounterWithTags(fmt.Sprintf("%s`%s", metric, value), tags)
 	return nil
 }
 
-// SetTextValue sends a text metric
+// SetTextValue sends a text metric.
 func (c *Circonus) SetTextValue(metric string, value string) error { // text metric
 	c.client.SetTextValue(metric, value)
 	return nil
 }
 
-// SetTextValueWithTags sends a text metric with tags
+// SetTextValueWithTags sends a text metric with tags.
 func (c *Circonus) SetTextValueWithTags(metric string, tags []string, value string) error { // text metric
 	c.client.SetTextValueWithTags(metric, c.tagsToCgmTags(tags), value)
 	return nil

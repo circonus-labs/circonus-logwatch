@@ -226,6 +226,10 @@ func destConf() error {
 			return fmt.Errorf("destination %s, port %s: %w", dest, addr, err)
 		}
 
+		if err := testPort("tcp", a.String()); err != nil {
+			return fmt.Errorf("destination %s, port %s: %w", dest, addr, err)
+		}
+
 		viper.Set(KeyDestAgentURL, fmt.Sprintf("http://%s/write/%s", a.String(), id))
 
 	default:
@@ -272,7 +276,7 @@ func apiConf() error {
 			return fmt.Errorf("invalid API URL: %w", err)
 		}
 		if parsedURL.Scheme == "" || parsedURL.Host == "" || parsedURL.Path == "" {
-			return fmt.Errorf("Invalid API URL (%s)", apiURL)
+			return fmt.Errorf("invalid API URL (%s)", apiURL)
 		}
 	}
 

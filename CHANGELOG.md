@@ -1,3 +1,9 @@
+# v1.0.2
+
+* fix: config unit tests
+* fix: test tcp port for agent config
+* fix: lowercase config err msgs
+
 # v1.0.1
 
 * fix: lint issues

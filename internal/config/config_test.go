@@ -196,7 +196,7 @@ func TestLogConfDir(t *testing.T) {
 	t.Log("no directory")
 	{
 		viper.Set(KeyLogConfDir, "")
-		expectedError := errors.New("Invalid log configuration directory ()")
+		expectedError := errors.New("invalid log configuration directory ()")
 		err := logConfDir()
 		if err == nil {
 			t.Fatalf("Expected error")
@@ -302,7 +302,7 @@ func TestApiConf(t *testing.T) {
 		if err == nil {
 			t.Fatal("Expected error")
 		}
-		pfx := "Unable to access cosi config:"
+		pfx := "unable to access cosi config:"
 		if !strings.HasPrefix(err.Error(), pfx) {
 			t.Errorf("Expected (^%s) got (%s)", pfx, err)
 		}
@@ -340,7 +340,7 @@ func TestApiConf(t *testing.T) {
 		viper.Set(KeyAPITokenKey, "foo")
 		viper.Set(KeyAPITokenApp, "foo")
 		viper.Set(KeyAPIURL, "foo")
-		expectedError := errors.New("Invalid API URL (foo)")
+		expectedError := errors.New("invalid API URL (foo)")
 		err := apiConf()
 		if err == nil {
 			t.Fatal("Expected error")
@@ -355,7 +355,7 @@ func TestApiConf(t *testing.T) {
 		viper.Set(KeyAPITokenKey, "foo")
 		viper.Set(KeyAPITokenApp, "foo")
 		viper.Set(KeyAPIURL, "foo_bar://herp/derp")
-		expectedError := errors.New(`Invalid API URL: parse "foo_bar://herp/derp": first path segment in URL cannot contain colon`)
+		expectedError := errors.New(`invalid API URL: parse "foo_bar://herp/derp": first path segment in URL cannot contain colon`)
 		err := apiConf()
 		if err == nil {
 			t.Fatal("Expected error")
@@ -447,7 +447,7 @@ func TestLoadCosiConfig(t *testing.T) {
 	zerolog.SetGlobalLevel(zerolog.Disabled)
 	t.Log("cosi - missing")
 	{
-		expectedError := errors.New("Unable to access cosi config: open testdata/cosi_missing.json: no such file or directory")
+		expectedError := errors.New("unable to access cosi config: open testdata/cosi_missing.json: no such file or directory")
 		cosiCfgFile = filepath.Join("testdata", "cosi_missing.json")
 		t.Logf("cosiCfgFile %s", cosiCfgFile)
 		key, app, apiURL, err := loadCOSIConfig()

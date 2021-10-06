@@ -1,3 +1,10 @@
+# v1.0.1
+
+* fix: lint issues
+* upd: remove pkg/errors dependency
+* add: lint config
+* upd: all dependencies
+
 # v1.0.0
 
 * upd: clarify processing metric vs sending log message

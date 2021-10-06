@@ -10,25 +10,25 @@ import (
 )
 
 const (
-	// NAME is the name of this application
+	// NAME is the name of this application.
 	NAME = "circonus-logwatch"
-	// ENVPREFIX is the environment variable prefix
+	// ENVPREFIX is the environment variable prefix.
 	ENVPREFIX = "CLW"
 )
 
-// vars are manipulated at link time (see goreleaser)
+// vars are manipulated at link time (see goreleaser).
 var (
-	// COMMIT of relase in git repo
+	// COMMIT of relase in git repo.
 	COMMIT = "none"
-	// DATE of release
+	// DATE of release.
 	DATE = "unknown"
-	// TAG of release
+	// TAG of release.
 	TAG = ""
-	// VERSION of the release
+	// VERSION of the release.
 	VERSION = "dev"
 )
 
-// Info contains release information
+// Info contains release information.
 type Info struct {
 	Name      string
 	Version   string

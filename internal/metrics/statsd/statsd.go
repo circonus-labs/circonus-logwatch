@@ -17,7 +17,6 @@ import (
 	"time"
 
 	"github.com/circonus-labs/circonus-logwatch/internal/config"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -46,16 +45,16 @@ func init() {
 	rand.Seed(n.Int64())
 }
 
-// New initializes a udp connection to the localhost
+// New initializes a udp connection to the localhost.
 func New() (*Statsd, error) {
 	id := viper.GetString(config.KeyDestCfgID)
 	if id == "" {
-		return nil, errors.Errorf("invalid id, empty")
+		return nil, fmt.Errorf("invalid id, empty")
 	}
 
 	port := viper.GetString(config.KeyDestCfgPort)
 	if port == "" {
-		return nil, errors.Errorf("invalid port, empty")
+		return nil, fmt.Errorf("invalid port, empty")
 	}
 
 	once.Do(func() {
@@ -70,12 +69,12 @@ func New() (*Statsd, error) {
 	return client, nil
 }
 
-// Start the statsd Statsd
+// Start the statsd Statsd.
 func (c *Statsd) Start() error {
 	return c.open()
 }
 
-// Stop the statsd Statsd
+// Stop the statsd Statsd.
 func (c *Statsd) Stop() error {
 	if c.conn == nil {
 		return nil
@@ -83,7 +82,7 @@ func (c *Statsd) Stop() error {
 	return c.conn.Close()
 }
 
-// SetGaugeValue sends a gauge metric
+// SetGaugeValue sends a gauge metric.
 func (c *Statsd) SetGaugeValue(metric string, value interface{}) error { // gauge (ints or floats)
 	v, err := getGaugeValue(value)
 	if err != nil {
@@ -92,7 +91,7 @@ func (c *Statsd) SetGaugeValue(metric string, value interface{}) error { // gaug
 	return c.send(fmt.Sprintf("%s:%s|g", metric, v))
 }
 
-// SetGaugeValueWithTags sends a gauge metric
+// SetGaugeValueWithTags sends a gauge metric.
 func (c *Statsd) SetGaugeValueWithTags(metric string, tags []string, value interface{}) error { // gauge (ints or floats)
 	v, err := getGaugeValue(value)
 	if err != nil {
@@ -101,62 +100,62 @@ func (c *Statsd) SetGaugeValueWithTags(metric string, tags []string, value inter
 	return c.send(fmt.Sprintf("%s:%s|g|#%s", metric, v, strings.Join(tags, ",")))
 }
 
-// SetTimingValue sends a timing metric
+// SetTimingValue sends a timing metric.
 func (c *Statsd) SetTimingValue(metric string, value float64) error { // histogram
 	return c.SetHistogramValue(metric, value)
 }
 
-// SetTimingValueWithTags sends a timing metric
+// SetTimingValueWithTags sends a timing metric.
 func (c *Statsd) SetTimingValueWithTags(metric string, tags []string, value float64) error { // histogram
 	return c.SetHistogramValueWithTags(metric, tags, value)
 }
 
-// SetHistogramValue sends a histogram metric
+// SetHistogramValue sends a histogram metric.
 func (c *Statsd) SetHistogramValue(metric string, value float64) error { // histogram
 	return c.send(fmt.Sprintf("%s:%e|ms", metric, value))
 }
 
-// SetHistogramValueWithTags sends a histogram metric
+// SetHistogramValueWithTags sends a histogram metric.
 func (c *Statsd) SetHistogramValueWithTags(metric string, tags []string, value float64) error { // histogram
 	return c.send(fmt.Sprintf("%s:%e|ms|#%s", metric, value, strings.Join(tags, ",")))
 }
 
-// IncrementCounter sends a counter increment
+// IncrementCounter sends a counter increment.
 func (c *Statsd) IncrementCounter(metric string) error { // counter (monotonically increasing value)
 	return c.IncrementCounterByValue(metric, 1)
 }
 
-// IncrementCounterWithTags sends a counter increment
+// IncrementCounterWithTags sends a counter increment.
 func (c *Statsd) IncrementCounterWithTags(metric string, tags []string) error { // counter (monotonically increasing value)
 	return c.IncrementCounterByValueWithTags(metric, tags, 1)
 }
 
-// IncrementCounterByValue sends value to add to counter
+// IncrementCounterByValue sends value to add to counter.
 func (c *Statsd) IncrementCounterByValue(metric string, value uint64) error { // counter (monotonically increasing value)
 	return c.send(fmt.Sprintf("%s:%d|c", metric, value))
 }
 
-// IncrementCounterByValueWithTags sends value to add to counter
+// IncrementCounterByValueWithTags sends value to add to counter.
 func (c *Statsd) IncrementCounterByValueWithTags(metric string, tags []string, value uint64) error { // counter (monotonically increasing value)
 	return c.send(fmt.Sprintf("%s:%d|c|#%s", metric, value, strings.Join(tags, ",")))
 }
 
-// AddSetValue sends a unique value to the set metric
+// AddSetValue sends a unique value to the set metric.
 func (c *Statsd) AddSetValue(metric string, value string) error { // set metric (ala statsd, counts unique values)
 	return c.send(fmt.Sprintf("%s:%s|s", metric, value))
 }
 
-// AddSetValueWithTags sends a unique value to the set metric
+// AddSetValueWithTags sends a unique value to the set metric.
 func (c *Statsd) AddSetValueWithTags(metric string, tags []string, value string) error { // set metric (ala statsd, counts unique values)
 	return c.send(fmt.Sprintf("%s:%s|s|#%s", metric, value, strings.Join(tags, ",")))
 }
 
-// SetTextValue sends a text metric
+// SetTextValue sends a text metric.
 func (c *Statsd) SetTextValue(metric string, value string) error { // text metric
 	return c.send(fmt.Sprintf("%s:%s|t", metric, value))
 }
 
-// SetTextValueWithTags sends a text metric
+// SetTextValueWithTags sends a text metric.
 func (c *Statsd) SetTextValueWithTags(metric string, tags []string, value string) error { // text metric
 	return c.send(fmt.Sprintf("%s:%s|t|#%s", metric, value, strings.Join(tags, ",")))
 }
@@ -195,7 +194,7 @@ func (c *Statsd) send(metric string) error {
 	return nil
 }
 
-// open udp connection
+// open udp connection.
 func (c *Statsd) open() error {
 	if c.conn != nil {
 		c.conn.Close()
@@ -211,7 +210,7 @@ func (c *Statsd) open() error {
 	return nil
 }
 
-// getGaugeValue as string from interface
+// getGaugeValue as string from interface.
 func getGaugeValue(value interface{}) (string, error) {
 	vs := ""
 	switch v := value.(type) {
@@ -240,7 +239,7 @@ func getGaugeValue(value interface{}) (string, error) {
 	case float64:
 		vs = fmt.Sprintf("%f", v)
 	default:
-		return "", errors.Errorf("unknown type for value %v", v)
+		return "", fmt.Errorf("unknown type for value %v", v)
 	}
 	return vs, nil
 }

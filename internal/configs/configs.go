@@ -7,6 +7,7 @@ package configs
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -18,41 +19,40 @@ import (
 
 	"github.com/circonus-labs/circonus-logwatch/internal/config"
 	"github.com/pelletier/go-toml"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
 )
 
-// Metric is a metric definition for the log config
+// Metric is a metric definition for the log config.
 type Metric struct {
 	Matcher    *regexp.Regexp
-	MatchParts []string
 	Namer      *template.Template
 	Tagger     *template.Template
+	Type       string `json:"type" yaml:"type" toml:"type"`
 	ValueKey   string
 	Match      string `json:"match" yaml:"match" toml:"match"`
 	Name       string `json:"name" yaml:"name" toml:"name"`
-	Type       string `json:"type" yaml:"type" toml:"type"`
 	Tags       string `json:"tags" toml:"tags" yaml:"tags"`
+	MatchParts []string
 }
 
-// Config defines a log to watch
+// Config defines a log to watch.
 type Config struct {
 	ID      string    `json:"id" yaml:"id" toml:"id"`
 	LogFile string    `json:"log_file" yaml:"log_file" toml:"log_file"`
 	Metrics []*Metric `json:"metrics" yaml:"metrics" toml:"metrics"`
 }
 
-// Load reads the log configurations from log config directory
+// Load reads the log configurations from log config directory.
 func Load() ([]*Config, error) {
 	logger := log.With().Str("pkg", "configs").Logger()
 	supportedConfExts := regexp.MustCompile(`^\.(yaml|json|toml)$`)
 	logConfDir := viper.GetString(config.KeyLogConfDir)
 
 	if logConfDir == "" {
-		return nil, errors.Errorf("invalid log config directory (empty)")
+		return nil, errors.New("invalid log config directory (empty)")
 	}
 
 	logger.Debug().
@@ -65,7 +65,7 @@ func Load() ([]*Config, error) {
 	}
 
 	if len(entries) == 0 {
-		return nil, errors.Errorf("no log configurations found in (%s)", logConfDir)
+		return nil, fmt.Errorf("no log configurations found in (%s)", logConfDir)
 	}
 
 	var cfgs []*Config
@@ -109,7 +109,7 @@ func Load() ([]*Config, error) {
 		}
 
 		if logcfg.ID == "" { // ID not explicitly set, use the base of the config file name
-			logcfg.ID = strings.Replace(filepath.Base(logcfg.LogFile), filepath.Ext(logcfg.LogFile), "", -1)
+			logcfg.ID = strings.ReplaceAll(filepath.Base(logcfg.LogFile), filepath.Ext(logcfg.LogFile), "")
 		}
 
 		if validMetricRules(logcfg.ID, logger, logcfg.Metrics) {
@@ -258,7 +258,7 @@ func validMetricRules(logID string, logger zerolog.Logger, rules []*Metric) bool
 	return true
 }
 
-// parse reads and parses a log configuration
+// parse reads and parses a log configuration.
 func parse(cfgType, cfgFile string) (Config, error) {
 	var cfg Config
 
@@ -270,9 +270,11 @@ func parse(cfgType, cfgFile string) (Config, error) {
 	switch cfgType {
 	case ".json":
 		err := json.Unmarshal(data, &cfg)
-		if serr, ok := err.(*json.SyntaxError); ok {
+		var serr *json.SyntaxError
+		if errors.As(err, &serr) {
+			// if serr, ok := err.(*json.SyntaxError); ok {
 			line, col := findLine(data, serr.Offset)
-			return cfg, errors.Wrapf(err, "line %d, col %d", line, col)
+			return cfg, fmt.Errorf("line %d, col %d: %w", line, col, err)
 		}
 		return cfg, err
 	case ".yaml":
@@ -286,13 +288,13 @@ func parse(cfgType, cfgFile string) (Config, error) {
 			return cfg, err
 		}
 	default:
-		return cfg, errors.Errorf("unknown config type (%s)", cfgType)
+		return cfg, fmt.Errorf("unknown config type (%s)", cfgType)
 	}
 
 	return cfg, nil
 }
 
-// checkLogFileAccess verifies a log file can be opened for reading
+// checkLogFileAccess verifies a log file can be opened for reading.
 func checkLogFileAccess(file string) error {
 	f, err := os.Open(file)
 	if err != nil {

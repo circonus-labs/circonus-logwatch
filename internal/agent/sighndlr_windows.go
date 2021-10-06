@@ -3,6 +3,7 @@
 // license that can be found in the LICENSE file.
 //
 
+//go:build windows
 // +build windows
 
 // Signal handling for Windows
@@ -25,7 +26,7 @@ func (a *Agent) setupSignalHandler() {
 	signal.Notify(a.signalCh, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGPIPE, syscall.SIGTRAP)
 }
 
-// handleSignals runs the signal handler thread
+// handleSignals runs the signal handler thread.
 func (a *Agent) handleSignals() error {
 	const stacktraceBufSize = 1 * units.MiB
 

@@ -1,0 +1,8 @@
+[Unit]
+WantedBy=multi-user.target
+Description=Circonus Logwatch Daemon
+After=network.target
+
+[Service]
+ExecStart=/opt/circonus/sbin/circonus-logwatchd --log-level warn
+User=root

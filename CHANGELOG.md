@@ -1,3 +1,7 @@
+# v1.0.3
+
+* fix: typo in systemd service file
+
 # v1.0.2
 
 * fix: config unit tests

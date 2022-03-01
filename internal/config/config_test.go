@@ -266,7 +266,7 @@ func TestLogConfDir(t *testing.T) {
 
 	t.Log("Valid directory")
 	{
-		viper.Set(KeyLogConfDir, filepath.Join("testdata"))
+		viper.Set(KeyLogConfDir, "testdata")
 		err := logConfDir()
 		if err != nil {
 			t.Fatal("Expected NO error")

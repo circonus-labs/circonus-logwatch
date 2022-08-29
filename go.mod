@@ -8,7 +8,7 @@ require (
 	github.com/maier/go-appstats v0.2.0
 	github.com/nxadm/tail v1.4.8
 	github.com/pelletier/go-toml v1.9.4
-	github.com/rs/zerolog v1.26.1
+	github.com/rs/zerolog v1.28.0
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c

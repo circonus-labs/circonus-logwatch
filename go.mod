@@ -10,8 +10,8 @@ require (
 	github.com/pelletier/go-toml v1.9.5
 	github.com/rs/zerolog v1.29.1
 	github.com/spf13/cobra v1.8.0
-	github.com/spf13/viper v1.10.1
-	golang.org/x/sync v0.1.0
-	golang.org/x/sys v0.0.0-20211210111614-af8b64212486
+	github.com/spf13/viper v1.17.0
+	golang.org/x/sync v0.3.0
+	golang.org/x/sys v0.12.0
 	gopkg.in/yaml.v2 v2.4.0
 )

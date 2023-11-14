@@ -24,11 +24,11 @@ import (
 
 // Statsd defines the relevant properties of a StatsD connection.
 type Statsd struct {
+	logger zerolog.Logger
+	conn   net.Conn
 	id     string
 	port   string
 	prefix string
-	conn   net.Conn
-	logger zerolog.Logger
 }
 
 var (
@@ -164,17 +164,18 @@ func (c *Statsd) SetTextValueWithTags(metric string, tags []string, value string
 //
 // Outgoing metric format:
 //
-//   name:value|type[|#tags]
+//	name:value|type[|#tags]
 //
 // e.g.
-//   foo:1|c
-//   foo:1|c|#foo:bar
-//   bar:2.5|ms
-//   bar:2.5|ms|#foo:bar,baz:qux
-//   baz:25|g
-//   qux:abcd123|s
-//   dib:38.282|h
-//   dab:yadda yadda yadda|t
+//
+//	foo:1|c
+//	foo:1|c|#foo:bar
+//	bar:2.5|ms
+//	bar:2.5|ms|#foo:bar,baz:qux
+//	baz:25|g
+//	qux:abcd123|s
+//	dib:38.282|h
+//	dab:yadda yadda yadda|t
 func (c *Statsd) send(metric string) error {
 	if c.conn == nil {
 		if err := c.open(); err != nil {

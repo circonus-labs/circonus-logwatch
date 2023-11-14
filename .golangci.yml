@@ -30,13 +30,11 @@ linters-settings:
 
 linters:
   enable:
-    - deadcode
     - errcheck
     - exportloopref
     - gocritic
     - godot
     - godox
-    #- goerr113
     - gofmt
     - gosec
     - gosimple
@@ -48,13 +46,10 @@ linters:
     - predeclared
     - revive
     - staticcheck
-    - structcheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
-    #- wrapcheck
   disable:
     - scopelint # deprecated, replaced by exportloopref
     # - golint -- deprecated, replaced by revive

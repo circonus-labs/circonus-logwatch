@@ -6,12 +6,13 @@
 // Package metrics provides an interface for various metric destinations
 //
 // Metric types supported:
-//   c - counter
-//   g - gauge
-//   h - histogram
-//   ms - timing
-//   s - set
-//   t - text
+//
+//	c - counter
+//	g - gauge
+//	h - histogram
+//	ms - timing
+//	s - set
+//	t - text
 package metrics
 
 // Destination defines the interface required by the metric destination.

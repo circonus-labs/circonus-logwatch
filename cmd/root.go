@@ -30,7 +30,7 @@ var RootCmd = &cobra.Command{
 	Long: `Send metrics extracted from log files to Circonus.
 
 Not all useful metrics can be sent directly to a centralized system for analysis
-and alerting. Often, there are valuable metrics sequesterd in system and application
+and alerting. Often, there are valuable metrics sequestered in system and application
 log files. These logs are not always in a common, easily parsable format.
 
 Using named regular expressions and templates, this utility offers the ability
@@ -325,7 +325,7 @@ func init() {
 		bindEnvError(key, viper.BindEnv(key, envVar))
 	}
 
-	// Miscellenous
+	// Miscellaneous
 
 	{
 		const (
@@ -475,7 +475,7 @@ func initConfig() {
 }
 
 // initLogging initializes zerolog.
-func initLogging(cmd *cobra.Command, args []string) error {
+func initLogging(_ *cobra.Command, _ []string) error {
 	//
 	// Enable formatted output
 	//

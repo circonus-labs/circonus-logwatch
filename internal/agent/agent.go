@@ -109,7 +109,10 @@ func New() (*Agent, error) {
 		a.watchers[idx] = w
 	}
 
-	a.svrHTTP = &http.Server{Addr: net.JoinHostPort("localhost", viper.GetString(config.KeyAppStatPort))}
+	a.svrHTTP = &http.Server{
+		Addr:              net.JoinHostPort("localhost", viper.GetString(config.KeyAppStatPort)),
+		ReadHeaderTimeout: 5 * time.Second,
+	}
 	a.svrHTTP.SetKeepAlivesEnabled(false)
 
 	a.setupSignalHandler()

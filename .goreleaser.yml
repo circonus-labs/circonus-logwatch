@@ -7,27 +7,19 @@ before:
 
 builds:
     -
+        id: clw
         main: main.go
-
         binary: sbin/circonus-logwatchd
-
         env:
             - CGO_ENABLED=0
-
-        flags: 
-            #- -tags dev
-
         goos:
             - linux
             - freebsd
-
         goarch:
             - amd64
-
         ignore:
             -
                 goarch: 386
-
         ldflags:
             - -s
             - -w
@@ -42,16 +34,10 @@ archives:
     - 
         id: default
         name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}_{{.Arch}}"
-
         format: tar.gz
-
-        replacements:
-            amd64: x86_64
-
         format_overrides:
             - goos: windows
               format: zip
-
         files:
             - LICENSE
             - README.md
@@ -67,8 +53,29 @@ release:
 
     prerelease: auto
 
-snapshot:
-    name_template: SNAPSHOT-{{.Commit}}
+changelog:
+  use: git
+  sort: desc
+  abbrev: 0
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: 'Bug fixes'
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: 'Dependencies'
+      regexp: "^.*build(deps):+.*$"
+      order: 2
+    - title: Others
+      order: 999
+  filters:
+    exclude:
+      - '^docs:'
+      - typo
 
 checksum:
     name_template: "{{.ProjectName}}_checksums.txt"
+
+snapshot:
+  name_template: '{{ incpatch .Version }}-devel'

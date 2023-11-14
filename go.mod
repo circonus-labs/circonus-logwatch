@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/units v0.0.0-20210927113745-59d0afb8317a
 	github.com/circonus-labs/circonus-gometrics/v3 v3.4.7
 	github.com/maier/go-appstats v0.2.0
-	github.com/nxadm/tail v1.4.8
+	github.com/nxadm/tail v1.4.11
 	github.com/pelletier/go-toml v1.9.5
 	github.com/rs/zerolog v1.31.0
 	github.com/spf13/cobra v1.8.0

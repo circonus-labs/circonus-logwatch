@@ -3,7 +3,6 @@ project_name: circonus-logwatch
 before:
   hooks:
     - go mod tidy
-    - golangci-lint run
     - cmd: golangci-lint run
       env:
         - GOOS=linux

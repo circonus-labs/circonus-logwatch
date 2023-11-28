@@ -85,3 +85,10 @@ checksum:
 
 snapshot:
   name_template: '{{ incpatch .Version }}-devel'
+
+sboms:
+  - artifacts: archive
+    args: ["$artifact", "--output", "cyclonedx-json@1.5=$document"]
+    env:
+      - SYFT_GOLANG_SEARCH_LOCAL_MOD_CACHE_LICENSES=true
+      - SYFT_GOLANG_SEARCH_REMOTE_LICENSES=true

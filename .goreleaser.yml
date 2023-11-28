@@ -1,9 +1,13 @@
 project_name: circonus-logwatch
 
 before:
-    hooks:
-        - go mod tidy
-        - ./build_lint.sh
+  hooks:
+    - go mod tidy
+    - golangci-lint run
+    - cmd: golangci-lint run
+      env:
+        - GOOS=linux
+    - govulncheck ./...
 
 builds:
     -
@@ -20,6 +24,8 @@ builds:
         ignore:
             -
                 goarch: 386
+        flags:
+          - -trimpath
         ldflags:
             - -s
             - -w

@@ -1,5 +1,12 @@
 # **unreleased**
 
+## v1.1.2
+
+* build(deps): bump github.com/spf13/viper from 1.18.1 to 1.18.2
+* build(deps): bump github.com/spf13/viper from 1.18.0 to 1.18.1
+* build(deps): bump github.com/spf13/viper from 1.17.0 to 1.18.0
+* build(deps): bump actions/setup-go from 4 to 5
+
 ## v1.1.1
 
 * build: add after hook for `grype` on generated sboms
